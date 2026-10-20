@@ -445,8 +445,32 @@ def snapshot_files(source: Path) -> list[tuple[Path, str]]:
         raise ValueError(f"source is not a file or directory: {source}")
 
     entries = []
-    for path in iter_files(source):
-        entries.append((path, path.relative_to(source).as_posix()))
+
+    def walk_error(error: OSError) -> None:
+        raise error
+
+    # For saves, silently skipping an unreadable file or linked directory
+    # could create a snapshot that looks complete but is missing progress.
+    for current, dirnames, filenames in os.walk(source, followlinks=False, onerror=walk_error):
+        current_path = Path(current)
+        linked_dirs = [name for name in dirnames if (current_path / name).is_symlink()]
+        if linked_dirs:
+            raise ValueError(f"save source contains a symbolic-link directory: {current_path / linked_dirs[0]}")
+        dirnames.sort(key=str.casefold)
+        for name in filenames:
+            path = current_path / name
+            try:
+                if path.is_symlink():
+                    raise ValueError(f"save source contains a symbolic-link file: {path}")
+                if not path.is_file():
+                    raise ValueError(f"save source contains a non-regular file: {path}")
+                # Force a read-open now so a permission or filesystem error
+                # cannot be silently deferred until a later backup attempt.
+                with path.open("rb"):
+                    pass
+            except OSError as exc:
+                raise OSError(f"cannot read save source file {path}: {exc}") from exc
+            entries.append((path, path.relative_to(source).as_posix()))
     return sorted(entries, key=lambda item: item[1].casefold())
 
 
@@ -469,7 +493,18 @@ def create_save_snapshot(args: argparse.Namespace) -> int:
         return 2
 
     name = args.name or datetime.now(timezone.utc).strftime("snapshot-%Y%m%dT%H%M%S_%fZ")
-    if name in {".", ".."} or "/" in name or "\\" in name:
+    reserved_windows_names = {"CON", "PRN", "AUX", "NUL"} | {
+        f"{prefix}{number}" for prefix in ("COM", "LPT") for number in range(1, 10)
+    }
+    invalid_name = (
+        not name
+        or len(name) > 120
+        or name in {".", ".."}
+        or any(char in '<>:"/\\|?*' or ord(char) < 32 for char in name)
+        or name.endswith((" ", "."))
+        or name.split(".", 1)[0].upper() in reserved_windows_names
+    )
+    if invalid_name:
         print("error: snapshot name must be a single folder name", file=sys.stderr)
         return 2
     snapshot_dir = output_root / name
@@ -477,9 +512,15 @@ def create_save_snapshot(args: argparse.Namespace) -> int:
         print(f"error: snapshot already exists; refusing to overwrite: {snapshot_dir}", file=sys.stderr)
         return 2
 
-    data_dir = snapshot_dir / "data"
+    staging_dir: Path | None = None
     manifest_files: dict[str, dict[str, Any]] = {}
     try:
+        output_root.mkdir(parents=True, exist_ok=True)
+        if snapshot_dir.exists():
+            print(f"error: snapshot already exists; refusing to overwrite: {snapshot_dir}", file=sys.stderr)
+            return 2
+        staging_dir = Path(tempfile.mkdtemp(prefix=f".{name}.releaseguard-staging-", dir=output_root))
+        data_dir = staging_dir / "data"
         data_dir.mkdir(parents=True)
         for source_file, relative in entries:
             destination = data_dir / Path(relative)
@@ -502,8 +543,20 @@ def create_save_snapshot(args: argparse.Namespace) -> int:
             "total_size_bytes": sum(item["size_bytes"] for item in manifest_files.values()),
             "files": manifest_files,
         }
-        write_json(snapshot_dir / "manifest.json", manifest)
+        write_json(staging_dir / "manifest.json", manifest)
+        # Publish the completed snapshot with one same-filesystem rename. A
+        # crash during copying leaves only a hidden staging directory, never a
+        # final-looking snapshot without its manifest.
+        if snapshot_dir.exists():
+            raise FileExistsError(f"snapshot already exists; refusing to overwrite: {snapshot_dir}")
+        staging_dir.rename(snapshot_dir)
+        staging_dir = None
     except (OSError, ValueError) as exc:
+        if staging_dir is not None:
+            try:
+                shutil.rmtree(staging_dir)
+            except OSError:
+                pass
         print(f"error: snapshot could not be completed: {exc}", file=sys.stderr)
         return 2
 
@@ -530,10 +583,28 @@ def verify_save_snapshot(args: argparse.Namespace) -> int:
     if not isinstance(files, dict):
         print("error: snapshot manifest has no valid files map", file=sys.stderr)
         return 2
+    if manifest.get("source_kind") not in {"file", "directory"}:
+        print("error: snapshot manifest has no supported source_kind", file=sys.stderr)
+        return 2
+    if manifest.get("source_kind") == "file" and len(files) != 1:
+        print("error: file snapshot must contain exactly one file", file=sys.stderr)
+        return 2
+    if (isinstance(manifest.get("file_count"), bool)
+            or manifest.get("file_count") != len(files)):
+        print("error: snapshot manifest file_count does not match its files map", file=sys.stderr)
+        return 2
+    declared_total = manifest.get("total_size_bytes")
+    if isinstance(declared_total, bool) or not isinstance(declared_total, int) or declared_total < 0:
+        print("error: snapshot manifest has an invalid total_size_bytes", file=sys.stderr)
+        return 2
 
     data_dir = snapshot_dir / "data"
+    if data_dir.is_symlink() or not data_dir.is_dir():
+        print("FAIL: snapshot data directory is missing or unsafe", file=sys.stderr)
+        return 1
     failures = []
     expected_paths: set[str] = set()
+    calculated_total = 0
     for relative, expected in files.items():
         if not isinstance(relative, str) or not isinstance(expected, dict):
             failures.append(f"invalid manifest entry: {relative!r}")
@@ -544,19 +615,30 @@ def verify_save_snapshot(args: argparse.Namespace) -> int:
             failures.append(f"unsafe path in manifest: {relative!r}")
             continue
         normalized = relative_path.as_posix()
+        if normalized in expected_paths:
+            failures.append(f"duplicate path in manifest: {normalized}")
+            continue
         expected_paths.add(normalized)
         target = data_dir / relative_path
         try:
-            if (data_dir.is_symlink() or target.is_symlink()
+            if (target.is_symlink()
                     or not target.resolve().is_relative_to(data_dir.resolve())
                     or not target.is_file()):
                 failures.append(f"missing or unsafe file: {normalized}")
                 continue
             size = target.stat().st_size
-            if size != expected.get("size_bytes"):
+            expected_size = expected.get("size_bytes")
+            expected_hash = expected.get("sha256")
+            if (isinstance(expected_size, bool) or not isinstance(expected_size, int)
+                    or expected_size < 0 or not isinstance(expected_hash, str)
+                    or re.fullmatch(r"[0-9a-f]{64}", expected_hash) is None):
+                failures.append(f"invalid metadata: {normalized}")
+                continue
+            calculated_total += expected_size
+            if size != expected_size:
                 failures.append(f"size mismatch: {normalized}")
                 continue
-            if hash_file(target) != expected.get("sha256"):
+            if hash_file(target) != expected_hash:
                 failures.append(f"checksum mismatch: {normalized}")
         except OSError as exc:
             failures.append(f"cannot read {normalized}: {exc}")
@@ -565,6 +647,8 @@ def verify_save_snapshot(args: argparse.Namespace) -> int:
         path.relative_to(data_dir).as_posix()
         for path in iter_files(data_dir)
     } if data_dir.is_dir() else set()
+    if calculated_total != declared_total:
+        failures.append("total_size_bytes does not match the files map")
     for extra in sorted(actual_paths - expected_paths, key=str.casefold):
         failures.append(f"unexpected file: {extra}")
 

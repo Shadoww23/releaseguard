@@ -41,7 +41,7 @@ python releaseguard.py save snapshot "/path/to/save/folder" --output "$HOME/Rele
 python releaseguard.py save verify "$HOME/ReleaseGuard-saves/gta4-before"
 ```
 
-For Windows PowerShell, replace `$HOME` with a quoted folder such as `"D:\GameBackups"`. Snapshot output must be outside the source save folder. Existing snapshots are never overwritten. Symlinks are not followed.
+For Windows PowerShell, replace `$HOME` with a quoted folder such as `"D:\GameBackups"`. Snapshot output must be outside the source save folder. Existing snapshots are never overwritten. If a save folder contains symlinks or unreadable files, snapshot creation fails instead of silently omitting them. A snapshot is published only after its copy and manifest are complete.
 
 To roll back, first close the game. Preview the action (this changes nothing):
 

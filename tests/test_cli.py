@@ -6,6 +6,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr
+from io import StringIO
 from unittest.mock import patch
 from pathlib import Path
 from types import SimpleNamespace
@@ -51,6 +53,54 @@ class ReleaseGuardCliTests(unittest.TestCase):
             changed = self.run_cli("save", "verify", snapshot_root / "before")
             self.assertEqual(changed.returncode, 1, changed.stdout + changed.stderr)
             self.assertIn("FAIL", changed.stdout)
+
+    def test_failed_snapshot_copy_does_not_publish_partial_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "save.sav"
+            source.write_bytes(b"save-data")
+            output = root / "snapshots"
+            args = SimpleNamespace(source=source, output=output, name="interrupted")
+
+            with (
+                patch.object(releaseguard.shutil, "copyfile", side_effect=OSError("simulated copy failure")),
+                redirect_stderr(StringIO()),
+            ):
+                result = releaseguard.create_save_snapshot(args)
+
+            self.assertEqual(result, 2)
+            self.assertFalse((output / "interrupted").exists())
+            self.assertEqual(list(output.iterdir()), [])
+
+    def test_snapshot_refuses_symlinked_save_content(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "save-folder"
+            source.mkdir()
+            outside = root / "outside.sav"
+            outside.write_bytes(b"outside-save")
+            try:
+                (source / "linked.sav").symlink_to(outside)
+            except (OSError, NotImplementedError) as error:
+                self.skipTest(f"symlinks are unavailable in this environment: {error}")
+
+            with self.assertRaisesRegex(ValueError, "symbolic-link file"):
+                releaseguard.snapshot_files(source)
+
+    def test_snapshot_name_rejects_windows_drive_syntax(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "save.sav"
+            source.write_bytes(b"save-data")
+            with redirect_stderr(StringIO()):
+                result = releaseguard.create_save_snapshot(SimpleNamespace(
+                    source=source,
+                    output=root / "snapshots",
+                    name="C:escape",
+                ))
+
+            self.assertEqual(result, 2)
+            self.assertFalse((root / "snapshots").exists())
 
     def test_folder_restore_is_dry_run_first_and_keeps_backup(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

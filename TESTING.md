@@ -4,7 +4,7 @@ Date: 2026-10-20
 Environment: Linux, Python 3.14.  
 This is a manual smoke/pretest record, not an independent QA report.
 
-The eight standard-library CLI smoke tests in `tests/test_cli.py` all passed locally on this environment (Linux, Python 3.14). The suite includes synthetic custom Steam library discovery and a mocked Windows registry lookup. The included GitHub Actions workflow is set to run it on Linux and Windows with Python 3.10 and 3.14 when the project is pushed to GitHub; those remote matrix runs have not happened yet.
+The eleven standard-library CLI smoke tests in `tests/test_cli.py` all passed locally on this environment (Linux, Python 3.14). The suite includes synthetic custom Steam library discovery, a mocked Windows registry lookup, refusal to back up symlinked content, cleanup after an interrupted snapshot copy, and rejection of a Windows drive-style snapshot name. The included GitHub Actions workflow is set to run it on Linux and Windows with Python 3.10 and 3.14 when the project is pushed to GitHub; those remote matrix runs have not happened yet.
 
 ## Passed
 
@@ -15,6 +15,7 @@ The eight standard-library CLI smoke tests in `tests/test_cli.py` all passed loc
 - Added Windows Steam registry path discovery for nonstandard Steam installs and exercised the registry query using a mock; the real Windows API path awaits a native Windows run.
 - Created separate snapshots of both real saves and verified the recorded hashes: one Shadow of Mordor file and five GTA IV profile files.
 - Changed a disposable copy of a snapshot and confirmed verification rejected it.
+- Confirmed interrupted snapshot copies leave no published partial snapshot, and linked save content is rejected rather than silently omitted.
 - Confirmed restore's default dry run left its target unchanged.
 - Restored disposable file and folder targets and confirmed each previous target was preserved as a sibling backup.
 - Ran the sample scenario successfully through seed, interrupted write, and recovery verification.
