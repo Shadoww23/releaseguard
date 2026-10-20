@@ -1,0 +1,37 @@
+{
+  "scenario_version": 1,
+  "name": "Interrupted save preserves previous committed progress",
+  "steps": [
+    {
+      "name": "seed_known_good_save",
+      "command": [
+        "{python}",
+        "{scenario_dir}/save_adapter.py",
+        "seed",
+        "{workspace}/slot.json"
+      ]
+    },
+    {
+      "name": "interrupt_mid_write",
+      "command": [
+        "{python}",
+        "{scenario_dir}/save_adapter.py",
+        "interrupt",
+        "{workspace}/slot.json"
+      ],
+      "kill_after_seconds": 5
+    },
+    {
+      "name": "verify_previous_save_after_interruption",
+      "command": [
+        "{python}",
+        "{scenario_dir}/save_adapter.py",
+        "verify",
+        "{workspace}/slot.json"
+      ],
+      "stdout_contains": [
+        "previous committed save is intact and loadable"
+      ]
+    }
+  ]
+}

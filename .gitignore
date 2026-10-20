@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+releaseguard-results/
+releaseguard-saves/
+releaseguard-baseline.json
+releaseguard-report.json
+test-fixtures/
+build/
+*.egg-info/
+dist/
