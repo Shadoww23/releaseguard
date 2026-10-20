@@ -6,7 +6,7 @@ This is a smoke/pretest record, not an independent QA report.
 
 The thirteen CLI smoke tests and five packaging/preflight tests (18 total) pass locally on Linux with Python 3.14. The suite includes synthetic custom Steam library discovery, mocked Windows registry lookups for Steam and redirected Documents, GTA IV discovery through a redirected Documents folder, refusal to back up symlinked content, cleanup after an interrupted snapshot copy, rejection of a Windows drive-style snapshot name, checks that the tester ZIP includes its first-test guide but excludes personal fixtures and caches, verification that the ZIP runs after extraction, safe handling of a failed package build, and preflight next-action reporting that does not expose remote URLs. The package workflow installs the wheel offline in an isolated environment and runs its CLI.
 
-The latest GitHub Actions run [39514491165](https://github.com/Shadoww23/releaseguard/actions/runs/39514491165) passed on commit `d7f4a1d` on 2026-10-20: all four Linux/Windows and Python 3.10/3.14 smoke jobs passed, followed by the package build and artifact upload including `FIRST-TEST.md`. This establishes automated CI coverage on those runners; it is not a substitute for testing real game saves on a Windows player's PC.
+The latest GitHub Actions run [39514647069](https://github.com/Shadoww23/releaseguard/actions/runs/39514647069) passed on commit `e2ff8bd` on 2026-10-20: all four Linux/Windows and Python 3.10/3.14 smoke jobs passed, followed by the package build and artifact upload including `FIRST-TEST.md`. This establishes automated CI coverage on those runners; it is not a substitute for testing real game saves on a Windows player's PC.
 
 ## Passed
 
