@@ -10,6 +10,10 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+NO_REMOTE_NEXT_ACTION = (
+    "Connect this checkout to a private GitHub repository to run native Windows CI "
+    "and keep an off-device source backup."
+)
 
 
 def run_step(label: str, command: list[str]) -> bool:
@@ -24,6 +28,23 @@ def run_step(label: str, command: list[str]) -> bool:
         return False
     print(f"PASS: {label}")
     return True
+
+
+def next_action() -> str:
+    """Report the next external gate without exposing the configured remote URL."""
+    try:
+        remote = subprocess.run(
+            ["git", "-C", str(PROJECT_ROOT), "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return NO_REMOTE_NEXT_ACTION
+    if remote.returncode != 0:
+        return NO_REMOTE_NEXT_ACTION
+    return "Review the latest Windows CI result, then put the alpha in front of the first tester."
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -61,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
         print("Tester packages were not published successfully.", file=sys.stderr)
         return 1
     print("\nPASS: project preflight complete")
+    print(f"NEXT: {next_action()}")
     return 0
 
 

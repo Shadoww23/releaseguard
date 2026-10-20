@@ -40,7 +40,7 @@ Project maintainers can run the full local preflight with one command. It compil
 python scripts/check_project.py
 ```
 
-The command writes to `dist/`, checks the archive and wheel, and excludes local save fixtures and caches. `scripts/package.py` is available for CI after its test matrix has passed. GitHub Actions runs that matrix on Windows and Linux, then builds a downloadable bundle for successful pushes or manual workflow runs.
+The command writes to `dist/`, checks the archive and wheel, installs the wheel in an isolated offline environment, and excludes local save fixtures and caches. It also reports the next external release gate without printing any configured remote URL. `scripts/package.py` is available for CI after its test matrix has passed. GitHub Actions runs that matrix on Windows and Linux, then builds a downloadable bundle for successful pushes or manual workflow runs. It cancels stale runs on the same branch and caps job duration to avoid wasting runner time.
 
 ## Protect a real save
 

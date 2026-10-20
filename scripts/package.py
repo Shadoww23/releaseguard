@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import os
 import re
+import subprocess
 import sys
 import tempfile
 import zipfile
@@ -125,6 +126,25 @@ def build_wheel(output_dir: Path) -> Path:
     return wheel
 
 
+def smoke_test_wheel(wheel: Path, workspace: Path) -> None:
+    """Install the wheel offline in an isolated environment and run its CLI."""
+    environment = workspace / "wheel-smoke"
+    subprocess.run([sys.executable, "-m", "venv", str(environment)], check=True)
+    scripts_dir = environment / ("Scripts" if os.name == "nt" else "bin")
+    pip = scripts_dir / ("pip.exe" if os.name == "nt" else "pip")
+    cli = scripts_dir / ("releaseguard.exe" if os.name == "nt" else "releaseguard")
+    subprocess.run(
+        [str(pip), "install", "--no-index", "--no-deps", "--no-cache-dir", str(wheel)],
+        check=True,
+    )
+    completed = subprocess.run(
+        [str(cli), "--version"], check=True, capture_output=True, text=True
+    )
+    expected = f"releaseguard {project_version()}"
+    if completed.stdout.strip() != expected:
+        raise RuntimeError(f"wheel CLI returned an unexpected version: {completed.stdout.strip()!r}")
+
+
 def write_checksums(paths: list[Path], destination: Path) -> None:
     lines = []
     for path in sorted(paths, key=lambda item: item.name.casefold()):
@@ -170,6 +190,7 @@ def main(argv: list[str] | None = None) -> int:
             staged_archive = staging_dir / archive_name
             create_source_archive(staged_archive)
             staged_wheel = build_wheel(staging_dir)
+            smoke_test_wheel(staged_wheel, staging_dir)
             staged_checksums = staging_dir / checksums_name
             write_checksums([staged_archive, staged_wheel], staged_checksums)
 
@@ -179,6 +200,9 @@ def main(argv: list[str] | None = None) -> int:
             checksums = output_dir / checksums_name
             for staged in (staged_archive, staged_wheel, staged_checksums):
                 os.replace(staged, output_dir / staged.name)
+    except subprocess.CalledProcessError as exc:
+        print(f"error: packaging command failed with status {exc.returncode}: {exc.cmd}", file=sys.stderr)
+        return 1
     except (OSError, ValueError, RuntimeError) as exc:
         print(f"error: packaging failed: {exc}", file=sys.stderr)
         return 1

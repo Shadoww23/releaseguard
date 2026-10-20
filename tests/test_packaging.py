@@ -3,19 +3,40 @@
 from __future__ import annotations
 
 import tempfile
+import subprocess
+import sys
 import unittest
 import zipfile
 from contextlib import redirect_stderr
 from io import StringIO
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
-from scripts import package
+from scripts import check_project, package
 
 
 class ReleaseGuardPackagingTests(unittest.TestCase):
     def test_project_versions_match(self) -> None:
         self.assertRegex(package.project_version(), r"^\d+\.\d+\.\d+")
+
+    def test_preflight_reports_missing_remote_without_exposing_remote_urls(self) -> None:
+        with patch.object(
+            check_project.subprocess,
+            "run",
+            return_value=SimpleNamespace(returncode=1, stdout=""),
+        ):
+            self.assertIn("private GitHub repository", check_project.next_action())
+
+        secret_remote = "https://user:fake-token@example.invalid/project.git"
+        with patch.object(
+            check_project.subprocess,
+            "run",
+            return_value=SimpleNamespace(returncode=0, stdout=secret_remote),
+        ):
+            message = check_project.next_action()
+        self.assertIn("latest Windows CI", message)
+        self.assertNotIn("fake-token", message)
 
     def test_source_allowlist_excludes_local_data_and_caches(self) -> None:
         names = {
@@ -38,7 +59,17 @@ class ReleaseGuardPackagingTests(unittest.TestCase):
             with zipfile.ZipFile(first_path) as archive:
                 self.assertIsNone(archive.testzip())
                 names = set(archive.namelist())
+                extracted = Path(directory) / "extracted"
+                archive.extractall(extracted)
             self.assertEqual(first_path.read_bytes(), second_path.read_bytes())
+            result = subprocess.run(
+                [sys.executable, str(extracted / "releaseguard.py"), "--version"],
+                text=True,
+                capture_output=True,
+                timeout=10,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(result.stdout.strip(), f"releaseguard {package.project_version()}")
 
         self.assertIn("releaseguard.py", names)
         self.assertIn("scripts/package.py", names)

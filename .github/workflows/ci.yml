@@ -8,8 +8,13 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   smoke:
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -27,6 +32,7 @@ jobs:
   package:
     if: github.event_name != 'pull_request'
     needs: smoke
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
