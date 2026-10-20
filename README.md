@@ -28,6 +28,8 @@ ReleaseGuard does not keep a central database or copy saves automatically. It re
 
 This development copy is in `/home/kasean/Downloads/releaseguard`. The portable alpha ZIP and Python wheel are in `/home/kasean/Downloads`; the sample fixtures in `test-fixtures/` are disposable copies and are excluded from distribution. Do not include personal save files when sharing feedback.
 
+For resilience, keep the project source in a private GitHub repository with CI, but keep player saves out of source control. A robust save-backup setup should let the player choose two destinations (for example, an external drive plus a cloud-synced folder) and encrypt backups before they leave the PC. This alpha does not yet encrypt snapshots or upload them; do not place its unencrypted save snapshots in a shared or third-party cloud folder.
+
 Run the repeatable smoke suite from the extracted project folder with `python -m unittest discover -s tests -v`.
 
 ## Protect a real save
