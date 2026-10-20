@@ -3,6 +3,7 @@ name: CLI checks
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -22,3 +23,24 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run CLI smoke tests
         run: python -m unittest discover -s tests -v
+
+  package:
+    if: github.event_name != 'pull_request'
+    needs: smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - name: Install the declared build backend
+        run: python -m pip install "setuptools>=61"
+      - name: Build and verify tester packages
+        run: python scripts/package.py --output-dir artifacts
+      - name: Keep a downloadable tester bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: ReleaseGuard-alpha-${{ github.sha }}
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 14

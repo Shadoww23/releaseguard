@@ -26,11 +26,21 @@ On Linux, use `python3` if that is the installed Python command. The project is 
 
 ReleaseGuard does not keep a central database or copy saves automatically. It reads source saves in place. A snapshot is written only to the folder you pass with `--output`; reports and scenario logs go to the paths you pass on the command line. If you choose a removable drive as the output, the backup stays there. The extracted program folder can live anywhere and contains no user profile data by default.
 
-This development copy is in `/home/kasean/Downloads/releaseguard`. The portable alpha ZIP and Python wheel are in `/home/kasean/Downloads`; the sample fixtures in `test-fixtures/` are disposable copies and are excluded from distribution. Do not include personal save files when sharing feedback.
+The project keeps no user data in its program folder by default. Sample fixtures used for development are excluded from the portable package. Do not include personal save files when sharing feedback.
 
 For resilience, keep the project source in a private GitHub repository with CI, but keep player saves out of source control. A robust save-backup setup should let the player choose two destinations (for example, an external drive plus a cloud-synced folder) and encrypt backups before they leave the PC. This alpha does not yet encrypt snapshots or upload them; do not place its unencrypted save snapshots in a shared or third-party cloud folder.
 
 Run the repeatable smoke suite from the extracted project folder with `python -m unittest discover -s tests -v`.
+
+## Build a tester bundle
+
+Project maintainers can run the full local preflight with one command. It compiles the project, runs all tests, and only then builds the alpha ZIP, Python wheel, and SHA-256 checksum file:
+
+```sh
+python scripts/check_project.py
+```
+
+The command writes to `dist/`, checks the archive and wheel, and excludes local save fixtures and caches. `scripts/package.py` is available for CI after its test matrix has passed. GitHub Actions runs that matrix on Windows and Linux, then builds a downloadable bundle for successful pushes or manual workflow runs.
 
 ## Protect a real save
 

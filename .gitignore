@@ -8,3 +8,4 @@ test-fixtures/
 build/
 *.egg-info/
 dist/
+artifacts/
