@@ -17,6 +17,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_FILES = (
     ".gitignore",
+    "FIRST-TEST.md",
     "ITCH-PAGE-DRAFT.md",
     "README.md",
     "TESTING.md",

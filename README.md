@@ -20,6 +20,8 @@ python releaseguard.py save locate --game all
 python releaseguard.py scenario examples/save-recovery.json --output releaseguard-results
 ```
 
+For a safe five-minute first run that snapshots and verifies a save without restoring it, follow [FIRST-TEST.md](FIRST-TEST.md).
+
 On Linux, use `python3` if that is the installed Python command. The automated CI suite has passed on Windows and Linux with Python 3.10 and 3.14. Hands-on testing with actual game saves has only been done on Linux/Proton so far; the Windows CI results do not replace testing on a player's own Windows setup. Core commands work offline. A scenario runs the exact local commands declared in its manifest, so only run scenarios you trust.
 
 ## Where files are stored
@@ -40,7 +42,7 @@ Project maintainers can run the full local preflight with one command. It compil
 python scripts/check_project.py
 ```
 
-The command writes to `dist/`, checks the archive and wheel, installs the wheel in an isolated offline environment, and excludes local save fixtures and caches. It also reports the next external release gate without printing any configured remote URL. `scripts/package.py` is available for CI after its test matrix has passed. GitHub Actions runs that matrix on Windows and Linux, then builds a downloadable bundle for successful pushes or manual workflow runs. It cancels stale runs on the same branch and caps job duration to avoid wasting runner time.
+The command writes to `dist/`, checks the archive and wheel, installs the wheel in an isolated offline environment, and excludes local save fixtures and caches. The source ZIP includes `FIRST-TEST.md` for new testers. It also reports the next external release gate without printing any configured remote URL. `scripts/package.py` is available for CI after its test matrix has passed. GitHub Actions runs that matrix on Windows and Linux, then builds a downloadable bundle for successful pushes or manual workflow runs. It cancels stale runs on the same branch and caps job duration to avoid wasting runner time.
 
 ## Protect a real save
 

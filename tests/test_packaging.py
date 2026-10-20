@@ -44,6 +44,7 @@ class ReleaseGuardPackagingTests(unittest.TestCase):
             for path in package.package_sources()
         }
         self.assertIn("releaseguard.py", names)
+        self.assertIn("FIRST-TEST.md", names)
         self.assertIn("scripts/package.py", names)
         self.assertIn("tests/test_cli.py", names)
         self.assertFalse(any("test-fixtures" in Path(name).parts for name in names))
@@ -72,6 +73,7 @@ class ReleaseGuardPackagingTests(unittest.TestCase):
             self.assertEqual(result.stdout.strip(), f"releaseguard {package.project_version()}")
 
         self.assertIn("releaseguard.py", names)
+        self.assertIn("FIRST-TEST.md", names)
         self.assertIn("scripts/package.py", names)
         self.assertFalse(any("test-fixtures" in Path(name).parts for name in names))
 

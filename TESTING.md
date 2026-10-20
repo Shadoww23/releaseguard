@@ -4,7 +4,7 @@ Date: 2026-10-20
 Local environment: Linux, Python 3.14.
 This is a smoke/pretest record, not an independent QA report.
 
-The thirteen CLI smoke tests and five packaging/preflight tests (18 total) pass locally on Linux with Python 3.14. The suite includes synthetic custom Steam library discovery, mocked Windows registry lookups for Steam and redirected Documents, GTA IV discovery through a redirected Documents folder, refusal to back up symlinked content, cleanup after an interrupted snapshot copy, rejection of a Windows drive-style snapshot name, checks that the tester ZIP excludes personal fixtures and caches, verification that the ZIP runs after extraction, safe handling of a failed package build, and preflight next-action reporting that does not expose remote URLs. The package workflow installs the wheel offline in an isolated environment and runs its CLI.
+The thirteen CLI smoke tests and five packaging/preflight tests (18 total) pass locally on Linux with Python 3.14. The suite includes synthetic custom Steam library discovery, mocked Windows registry lookups for Steam and redirected Documents, GTA IV discovery through a redirected Documents folder, refusal to back up symlinked content, cleanup after an interrupted snapshot copy, rejection of a Windows drive-style snapshot name, checks that the tester ZIP includes its first-test guide but excludes personal fixtures and caches, verification that the ZIP runs after extraction, safe handling of a failed package build, and preflight next-action reporting that does not expose remote URLs. The package workflow installs the wheel offline in an isolated environment and runs its CLI.
 
 GitHub Actions run [39510314496](https://github.com/Shadoww23/releaseguard/actions/runs/39510314496) passed on commit `7088c44` on 2026-10-20: all four Linux/Windows and Python 3.10/3.14 smoke jobs passed, followed by the package build and artifact upload. This establishes automated CI coverage on those runners; it is not a substitute for testing real game saves on a Windows player's PC.
 
@@ -26,6 +26,7 @@ GitHub Actions run [39510314496](https://github.com/Shadoww23/releaseguard/actio
 - Added `scripts/package.py` to build and verify the tester ZIP, wheel, and checksums in one command.
 - Added `scripts/check_project.py` so a maintainer can compile, test, and package in one safe preflight; it stops before replacing release files if checks fail.
 - Passed the first hosted CI matrix on Windows and Linux with Python 3.10 and 3.14; the package job built and uploaded the tester bundle with 14-day retention.
+- Added a bundled first-test guide with Windows and Linux commands, safe snapshot/verify steps, and privacy guidance for feedback.
 - Added automatic cancellation of stale same-branch workflows and a 15-minute cap per job to limit wasted CI time.
 - Made the local preflight identify the next external gate from Git remote configuration without printing remote URLs.
 
