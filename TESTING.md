@@ -4,7 +4,7 @@ Date: 2026-10-20
 Environment: Linux, Python 3.14.  
 This is a manual smoke/pretest record, not an independent QA report.
 
-The eleven standard-library CLI smoke tests in `tests/test_cli.py` all passed locally on this environment (Linux, Python 3.14). The suite includes synthetic custom Steam library discovery, a mocked Windows registry lookup, refusal to back up symlinked content, cleanup after an interrupted snapshot copy, and rejection of a Windows drive-style snapshot name. The included GitHub Actions workflow is set to run it on Linux and Windows with Python 3.10 and 3.14 when the project is pushed to GitHub; those remote matrix runs have not happened yet.
+The thirteen standard-library CLI smoke tests in `tests/test_cli.py` all passed locally on this environment (Linux, Python 3.14). The suite includes synthetic custom Steam library discovery, mocked Windows registry lookups for Steam and redirected Documents, GTA IV discovery through a redirected Documents folder, refusal to back up symlinked content, cleanup after an interrupted snapshot copy, and rejection of a Windows drive-style snapshot name. The included GitHub Actions workflow is set to run it on Linux and Windows with Python 3.10 and 3.14 when the project is pushed to GitHub; those remote matrix runs have not happened yet.
 
 ## Passed
 

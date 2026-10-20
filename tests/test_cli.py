@@ -225,6 +225,41 @@ class ReleaseGuardCliTests(unittest.TestCase):
             [Path(r"D:\Games\Steam"), Path(r"E:\Steam")],
         )
 
+    def test_windows_documents_lookup_reads_redirected_path(self) -> None:
+        documents_key = r"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
+
+        def query_value(reg_key: tuple[str, str], name: str) -> tuple[str, int]:
+            self.assertEqual(reg_key, ("HKCU", documents_key))
+            self.assertEqual(name, "Personal")
+            return r"D:\Player Data\Documents", 1
+
+        registry = SimpleNamespace(
+            HKEY_CURRENT_USER="HKCU",
+            OpenKey=lambda hive, key: _FakeRegistryKey((hive, key)),
+            QueryValueEx=query_value,
+        )
+
+        paths = releaseguard.windows_documents_paths(registry)
+
+        self.assertEqual(paths, [Path(r"D:\Player Data\Documents")])
+
+    def test_gta_save_discovery_includes_redirected_documents(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            documents = home / "Redirected Documents"
+            profile = documents / "Rockstar Games/GTA IV/Profiles/profile-id"
+            profile.mkdir(parents=True)
+            (profile / "SGTA412").write_bytes(b"synthetic-gta-save")
+
+            with (
+                patch.object(releaseguard.Path, "home", return_value=home),
+                patch.object(releaseguard, "windows_documents_paths", return_value=[documents]),
+                patch.object(releaseguard, "steam_library_roots", return_value=[]),
+            ):
+                found = releaseguard.locate_game_saves("gta-iv")
+
+            self.assertEqual(found, [profile.resolve()])
+
 
 class _FakeRegistryKey:
     def __init__(self, key: tuple[str, str]) -> None:

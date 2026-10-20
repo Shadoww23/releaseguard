@@ -256,6 +256,29 @@ def windows_steam_registry_paths(registry_module: Any | None = None) -> list[Pat
     return locations
 
 
+def windows_documents_paths(registry_module: Any | None = None) -> list[Path]:
+    """Find a redirected Documents folder using Windows' user-shell setting."""
+    if registry_module is None:
+        if os.name != "nt":
+            return []
+        try:
+            import winreg as registry_module
+        except ImportError:
+            return []
+
+    try:
+        with registry_module.OpenKey(
+            registry_module.HKEY_CURRENT_USER,
+            r"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders",
+        ) as key:
+            value, _ = registry_module.QueryValueEx(key, "Personal")
+    except OSError:
+        return []
+    if not isinstance(value, str) or not value:
+        return []
+    return [Path(os.path.expandvars(value))]
+
+
 def steam_library_roots() -> list[Path]:
     """Find standard Steam roots and libraries listed in libraryfolders.vdf."""
     home = Path.home()
@@ -351,6 +374,7 @@ def locate_game_saves(game: str) -> list[Path]:
 
     if game in {"gta-iv", "all"}:
         document_roots = [Path.home() / "Documents"]
+        document_roots.extend(windows_documents_paths())
         for variable in ("OneDrive", "OneDriveConsumer", "OneDriveCommercial"):
             value = os.environ.get(variable)
             if value:

@@ -4,7 +4,7 @@ ReleaseGuard is a local CLI for game teams and PC players who need safer saves a
 
 ## What works in this alpha
 
-- **Find and protect saves:** locate common Shadow of Mordor and GTA IV save paths, copy any selected file/folder into a hashed snapshot, verify that snapshot, and restore it with a dry run and preserved pre-restore backup.
+- **Find and protect saves:** locate common Shadow of Mordor and GTA IV save paths, including Windows Steam installs and redirected Documents folders; copy any selected file/folder into a hashed snapshot, verify that snapshot, and restore it with a dry run and preserved pre-restore backup.
 - **Review packaged builds:** report build size, large files, duplicate files, likely development leftovers, and size changes against a baseline. It does not modify or optimize the build.
 - **Run reliability scenarios:** execute trusted game-authored commands from a JSON manifest, capture logs, and report timeouts or failed checks. The included interrupted-save example is a demonstration adapter, not a test of a commercial game.
 
