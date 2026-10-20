@@ -23,7 +23,7 @@ ReleaseGuard is an early alpha for PC players and game developers. It has no acc
 ### Requirements
 
 - Python 3.10 or newer.
-- Windows or Linux/Proton. The validation record currently covers Linux only; Windows has not yet been natively tested.
+- Windows or Linux/Proton. Automated tests pass on Windows and Linux CI runners with Python 3.10 and 3.14. Real save testing has been done on Linux/Proton only so far; Windows players are especially useful as first testers.
 
 ### Limits
 
@@ -34,6 +34,6 @@ This alpha does not repair arbitrary corrupted saves, validate a proprietary sav
 - Project type: downloadable software/tool; use the closest available tool/development classification.
 - Price: free download with optional tips during feedback gathering; reconsider pricing after testers show value.
 - Upload: `ReleaseGuard-0.1.0-alpha.zip`; optionally include the wheel for users comfortable with Python packaging.
-- Platforms: mark only platforms actually verified. The current validation is Linux-only; add Windows after a native Windows smoke run.
+- Platforms: mark Windows and Linux. CI has passed on both, while actual save discovery and snapshot use still need feedback from Windows players.
 - Tags: command-line, developer-tools, game-development, utility (use only tags the project page actually offers and that fit).
 - Link a feedback channel and ask for OS, command, and output. Tell testers not to send their save files; reports may include local paths.

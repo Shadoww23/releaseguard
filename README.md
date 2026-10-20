@@ -20,7 +20,7 @@ python releaseguard.py save locate --game all
 python releaseguard.py scenario examples/save-recovery.json --output releaseguard-results
 ```
 
-On Linux, use `python3` if that is the installed Python command. The project is designed to run on Windows and Linux, but this alpha has only been run locally on Linux so far; the Windows CI workflow must pass before we claim Windows validation. Core commands work offline. A scenario runs the exact local commands declared in its manifest, so only run scenarios you trust.
+On Linux, use `python3` if that is the installed Python command. The automated CI suite has passed on Windows and Linux with Python 3.10 and 3.14. Hands-on testing with actual game saves has only been done on Linux/Proton so far; the Windows CI results do not replace testing on a player's own Windows setup. Core commands work offline. A scenario runs the exact local commands declared in its manifest, so only run scenarios you trust.
 
 ## Where files are stored
 
