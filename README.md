@@ -2,6 +2,17 @@
 
 ReleaseGuard is a local-first CLI prototype for game teams to run save, crash/stability, timing, and packaged-build checks together before release. Its `release-check` command combines game-authored scenarios with build size/content review into one CI-friendly pass or failure report. It has no account, hosted service, telemetry, or runtime dependencies. Python 3.10 or newer is required.
 
+ReleaseGuard is part of [Brlinkin](https://shadoww23.github.io/brlinkin/), a small suite of local-first tools for Linux gaming and game releases.
+
+## Common problems this solves
+
+- Testing whether an interrupted save write corrupts player progress.
+- Adding save-integrity checks to a game's CI pipeline.
+- Gating a release on build size, duplicate assets, and development leftovers.
+- Turning game-authored stability and timing scenarios into one pass/fail report.
+
+See [docs/PROBLEMS.md](docs/PROBLEMS.md) for commands and limits.
+
 ## What works in this alpha
 
 - **Test save reliability:** execute trusted game-authored commands from a JSON manifest, interrupt a test process, capture logs, and report failed recovery checks. The bundled examples demonstrate detection of a synthetic corrupt save and survival of an interrupted atomic write; they are not tests of a commercial game.
@@ -111,3 +122,6 @@ ReleaseGuard 0.1 is free to download and evaluate under the proprietary
 freeware terms in [LICENSE](LICENSE): no redistribution, modification, or
 resale. Donations are optional. The alpha is provided as-is; see the license
 for the warranty and liability terms.
+
+
+More tools: [Brlinkin](https://shadoww23.github.io/brlinkin/) · [Proton Picker](https://github.com/Shadoww23/proton-picker).
