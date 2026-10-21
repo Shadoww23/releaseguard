@@ -38,3 +38,10 @@ This alpha is not a Unity or Unreal plugin. Teams must provide commands for thei
 - Platforms: mark Windows and Linux; CI passes on both.
 - Tags: command-line, developer-tools, game-development, utility (use only tags the project page actually offers and that fit).
 - Ask developers for OS, Python version, engine, CI provider, which scenario passed, and redacted error text. Tell them not to send save files, unreleased builds, or unredacted reports.
+
+## Page assets
+
+- `docs/itch/cover.png` — 630×500 cover.
+- `docs/itch/icon.png` — 512×512 icon.
+- `docs/itch/release-check.png` — 1280×720 screenshot of the combined
+  release-check gate (actual CLI output with local paths removed).
