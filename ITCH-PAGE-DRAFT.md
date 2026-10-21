@@ -10,6 +10,19 @@ A local CLI prototype combining game-authored save, stability, timing, and packa
 
 ## Page description
 
+Part of [Brlinkin](https://shadoww23.github.io/brlinkin/), a small suite of
+local-first tools for Linux gaming and game releases.
+
+### Common problems it addresses
+
+- Testing whether an interrupted save write corrupts player progress.
+- Adding save-integrity checks to a game's CI pipeline.
+- Gating a release on build size, duplicate assets, and development leftovers.
+- Turning game-authored stability and timing scenarios into one pass/fail report.
+
+Full commands and limits:
+[ReleaseGuard problem guide](https://github.com/Shadoww23/releaseguard/blob/main/docs/PROBLEMS.md).
+
 ReleaseGuard is an early developer-tool alpha. Run `release-check` to review a packaged build and execute trusted game-authored scenarios under one pass/fail gate. Scenarios can interrupt a test process, collect logs, validate save recovery, and enforce step-duration budgets. It works locally and in CI without an account, hosted service, telemetry, or runtime dependencies.
 
 ### Try in this alpha
