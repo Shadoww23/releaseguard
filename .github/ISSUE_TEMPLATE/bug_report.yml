@@ -1,0 +1,52 @@
+name: Alpha bug report
+description: Report a ReleaseGuard command, scenario, or packaging problem.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: >-
+        Do not attach save files, snapshots, unreleased builds, credentials, or
+        unredacted reports. Logs can contain usernames and private paths; redact
+        them before posting.
+  - type: input
+    id: releaseguard-version
+    attributes:
+      label: ReleaseGuard version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: os-python
+    attributes:
+      label: Operating system and Python version
+      placeholder: "Windows 11, Python 3.14"
+    validations:
+      required: true
+  - type: input
+    id: scenario
+    attributes:
+      label: Scenario or command
+      placeholder: "save-corruption-detection"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened?
+      description: Include redacted error text only. Do not upload game data or builds.
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check
+      options:
+        - label: I removed personal paths and did not include saves, snapshots, credentials, or unreleased game data.
+          required: true

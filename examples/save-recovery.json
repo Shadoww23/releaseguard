@@ -1,6 +1,6 @@
 {
   "scenario_version": 1,
-  "name": "Interrupted save preserves previous committed progress",
+  "name": "Atomic save preserves committed progress after interruption",
   "steps": [
     {
       "name": "seed_known_good_save",
@@ -16,7 +16,7 @@
       "command": [
         "{python}",
         "{scenario_dir}/save_adapter.py",
-        "interrupt",
+        "interrupt-atomic",
         "{workspace}/slot.json"
       ],
       "kill_after_seconds": 5

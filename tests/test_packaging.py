@@ -26,7 +26,7 @@ class ReleaseGuardPackagingTests(unittest.TestCase):
             "run",
             return_value=SimpleNamespace(returncode=1, stdout=""),
         ):
-            self.assertIn("private GitHub repository", check_project.next_action())
+            self.assertIn("Connect this checkout to GitHub", check_project.next_action())
 
         secret_remote = "https://user:fake-token@example.invalid/project.git"
         with patch.object(
@@ -45,6 +45,7 @@ class ReleaseGuardPackagingTests(unittest.TestCase):
         }
         self.assertIn("releaseguard.py", names)
         self.assertIn("FIRST-TEST.md", names)
+        self.assertIn("RELEASE-NOTES.md", names)
         self.assertIn("scripts/package.py", names)
         self.assertIn("tests/test_cli.py", names)
         self.assertFalse(any("test-fixtures" in Path(name).parts for name in names))
@@ -74,6 +75,7 @@ class ReleaseGuardPackagingTests(unittest.TestCase):
 
         self.assertIn("releaseguard.py", names)
         self.assertIn("FIRST-TEST.md", names)
+        self.assertIn("RELEASE-NOTES.md", names)
         self.assertIn("scripts/package.py", names)
         self.assertFalse(any("test-fixtures" in Path(name).parts for name in names))
 

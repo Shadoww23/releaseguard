@@ -1,10 +1,15 @@
-# ReleaseGuard first test
+# ReleaseGuard first developer test
 
-Thanks for trying this early alpha. This short first run checks save discovery and creates/verifies a backup; it does not modify your game save.
+This alpha test uses only synthetic files in a temporary workspace. It does not
+open a game, alter a real save, or require you to share game data.
 
-## 1. Open the extracted folder in a terminal
+## Requirements
 
-You need Python 3.10 or newer. Check the version:
+- Windows or Linux
+- Python 3.10 or newer
+- A terminal opened in the extracted ReleaseGuard folder
+
+Check Python:
 
 **Windows PowerShell**
 
@@ -18,70 +23,62 @@ py -3 --version
 python3 --version
 ```
 
-## 2. Check that ReleaseGuard starts
+## Run the two save reliability scenarios
 
-Run this command from the extracted ReleaseGuard folder:
+First, run a controlled unsafe-write example. The scenario intentionally
+interrupts a synthetic save while it is overwriting the only committed file.
+Its final check is expected to detect that the save is unreadable, so the whole
+scenario should report `PASS` when ReleaseGuard catches the fault.
 
 **Windows PowerShell**
 
 ```powershell
-py -3 releaseguard.py --version
+py -3 releaseguard.py scenario examples/save-corruption-detection.json --output "$HOME\ReleaseGuard-results"
 ```
 
 **Linux**
 
 ```sh
-python3 releaseguard.py --version
+python3 releaseguard.py scenario examples/save-corruption-detection.json --output "$HOME/ReleaseGuard-results"
 ```
 
-It should print `releaseguard 0.1.0`.
-
-## 3. Find a supported game save
-
-This alpha recognizes common save locations for Shadow of Mordor and GTA IV. Close the game first, then run:
+Then run the atomic-write example. It interrupts a synthetic replacement that
+is being written to a temporary file and checks that the previous committed
+save remains readable.
 
 **Windows PowerShell**
 
 ```powershell
-py -3 releaseguard.py save locate --game all
+py -3 releaseguard.py scenario examples/save-recovery.json --output "$HOME\ReleaseGuard-results"
 ```
 
 **Linux**
 
 ```sh
-python3 releaseguard.py save locate --game all
+python3 releaseguard.py scenario examples/save-recovery.json --output "$HOME/ReleaseGuard-results"
 ```
 
-If your save is found, copy one reported path. If it is not found, report the game and launcher; do not move or rename the save to make discovery work.
+Each invocation should end with `PASS: all scenario steps passed`. ReleaseGuard
+prints the report directory. The reports show the command results and timing.
 
-## 4. Snapshot and verify the save
+## Report back
 
-Use the reported file or folder path as `SAVE_PATH`. Keep the backup outside the game save folder.
+Please share only:
 
-**Windows PowerShell**
+- Operating system and Python version
+- Whether both scenarios passed
+- Any error text, with usernames and private paths removed
+- Game engine and CI system, if you are evaluating it for a development team
 
-```powershell
-py -3 releaseguard.py save snapshot "SAVE_PATH" --output "$HOME\ReleaseGuard-saves" --name first-test
-py -3 releaseguard.py save verify "$HOME\ReleaseGuard-saves\first-test"
-```
+Do not send real save files, snapshots, unreleased builds, or unredacted reports.
+Scenario manifests run the exact commands they contain; inspect and trust a
+manifest before running it.
 
-**Linux**
+## Try it with a game test build
 
-```sh
-python3 releaseguard.py save snapshot "SAVE_PATH" --output "$HOME/ReleaseGuard-saves" --name first-test
-python3 releaseguard.py save verify "$HOME/ReleaseGuard-saves/first-test"
-```
-
-Replace `SAVE_PATH`, including the quotes, with the path printed by `save locate`. A successful verify should report that the snapshot passes. If you get an error, keep the original save untouched and include the command and error in your report.
-
-## 5. Send feedback without save data
-
-Please report:
-
-- Operating system and Python version.
-- Game and launcher.
-- Whether discovery found the save.
-- Whether snapshot creation and verification passed.
-- The command and error text if anything failed.
-
-Remove your Windows/Linux account name and other private folders from copied paths. **Do not send save files, snapshots, or the contents of your backup.** For this first test, do not run `save restore --apply` against a real game profile.
+The examples establish the harness flow with a small adapter. A game team can
+replace the adapter commands with its own disposable test build and save-format
+validator. The `scenario` command provides `{build}`, `{workspace}`, and
+`{step_dir}` path tokens, kills a process at a configured point, records stdout
+and stderr, and returns a failing status when an expectation is violated. Start
+with an isolated test slot and a build that cannot access player profiles.

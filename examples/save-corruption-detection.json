@@ -1,0 +1,40 @@
+{
+  "scenario_version": 1,
+  "name": "Detect a save corrupted by interruption during an unsafe write",
+  "steps": [
+    {
+      "name": "seed_known_good_save",
+      "command": [
+        "{python}",
+        "{scenario_dir}/save_adapter.py",
+        "seed",
+        "{workspace}/slot.json"
+      ]
+    },
+    {
+      "name": "interrupt_unsafe_live_save_write",
+      "command": [
+        "{python}",
+        "{scenario_dir}/save_adapter.py",
+        "interrupt-unsafe",
+        "{workspace}/slot.json"
+      ],
+      "kill_after_seconds": 1
+    },
+    {
+      "name": "expected_failure_detects_unreadable_save",
+      "command": [
+        "{python}",
+        "{scenario_dir}/save_adapter.py",
+        "verify",
+        "{workspace}/slot.json"
+      ],
+      "expected_exit_codes": [
+        1
+      ],
+      "stdout_contains": [
+        "save is unreadable"
+      ]
+    }
+  ]
+}

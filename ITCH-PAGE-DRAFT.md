@@ -2,38 +2,38 @@
 
 ## Title
 
-ReleaseGuard: local save protection and game release checks
+ReleaseGuard: test game save recovery before release
 
 ## Short description
 
-A small, offline-first CLI for snapshotting and restoring PC game saves, reviewing packaged build size, and running game-authored reliability scenarios.
+A local CLI prototype for game teams to test interrupted-save recovery and inspect packaged builds.
 
 ## Page description
 
-ReleaseGuard is an early alpha for PC players and game developers. It has no account, cloud save service, or telemetry. Save discovery and backups run locally on your computer.
+ReleaseGuard is an early developer-tool alpha. Give it a scenario manifest and your test commands; it can interrupt a test process, collect logs, and fail the run when a save-recovery check does not meet its expected result. It works locally and in CI without an account, hosted service, telemetry, or runtime dependencies.
 
 ### Try in this alpha
 
-- Find common Shadow of Mordor and GTA IV save locations on Windows and Linux/Proton.
-- Create a SHA-256-checked snapshot of a save file or folder.
-- Verify a snapshot and restore it with a dry run and a preserved backup of the current target.
+- Run a controlled scenario that interrupts a synthetic unsafe save write and confirms the harness detects the unreadable save.
+- Run a second scenario that interrupts an atomic replacement and confirms the previous committed save remains readable.
+- Inspect captured step logs and a machine-readable JSON report.
 - Scan packaged builds for size changes, duplicate files, large files, and likely development leftovers.
-- Run a sample interrupted-save scenario and inspect its report.
+- Snapshot and verify selected player save files from supported locations.
 
 ### Requirements
 
 - Python 3.10 or newer.
-- Windows or Linux/Proton. Automated tests pass on Windows and Linux CI runners with Python 3.10 and 3.14. Real save testing has been done on Linux/Proton only so far; Windows players are especially useful as first testers.
+- Windows or Linux. Automated CI passes on Windows and Linux with Python 3.10 and 3.14. The included scenarios use synthetic test data; they have not been integrated with a commercial game or engine.
 
 ### Limits
 
-This alpha does not repair arbitrary corrupted saves, validate a proprietary save by itself, or optimize packaged assets automatically. Real game validation needs a game-specific adapter. The included save/crash scenario is a demonstration, not a test of a commercial game.
+This alpha is not a Unity or Unreal plugin. Teams must provide commands for their test build and a game-specific save validator. It does not repair arbitrary corrupted saves or automatically optimize packaged assets. The bundled scenarios demonstrate the harness using a small adapter, not a commercial game.
 
 ## Suggested itch.io setup
 
 - Project type: downloadable software/tool; use the closest available tool/development classification.
-- Price: free download with optional tips during feedback gathering; reconsider pricing after testers show value.
+- Price: free during the first developer evaluation. Decide on pricing only after real teams confirm the workflow solves a release problem.
 - Upload: `ReleaseGuard-0.1.0-alpha.zip`; optionally include the wheel for users comfortable with Python packaging.
-- Platforms: mark Windows and Linux. CI has passed on both, while actual save discovery and snapshot use still need feedback from Windows players.
+- Platforms: mark Windows and Linux; CI passes on both.
 - Tags: command-line, developer-tools, game-development, utility (use only tags the project page actually offers and that fit).
-- Link a feedback channel and ask for OS, command, and output. Tell testers not to send their save files; reports may include local paths.
+- Ask developers for OS, Python version, engine, CI provider, which scenario passed, and redacted error text. Tell them not to send save files, unreleased builds, or unredacted reports.

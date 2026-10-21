@@ -1,28 +1,38 @@
-# ReleaseGuard 0.1 Alpha
+# ReleaseGuard 0.1 Alpha — Game Save Reliability Checks
 
-ReleaseGuard is a local CLI for game teams and PC players who need safer saves and clearer release checks. It has no account, hosted service, telemetry, or third-party runtime dependencies. Python 3.10 or newer is required.
+ReleaseGuard is a local-first CLI prototype for game teams testing save reliability and reviewing release builds. It can run a game-authored scenario, interrupt a test process, check whether a save remains valid, and return a CI-friendly pass or failure. It has no account, hosted service, telemetry, or runtime dependencies. Python 3.10 or newer is required.
 
 ## What works in this alpha
 
-- **Find and protect saves:** locate common Shadow of Mordor and GTA IV save paths, including Windows Steam installs and redirected Documents folders; copy any selected file/folder into a hashed snapshot, verify that snapshot, and restore it with a dry run and preserved pre-restore backup.
+- **Test save reliability:** execute trusted game-authored commands from a JSON manifest, interrupt a test process, capture logs, and report failed recovery checks. The bundled examples demonstrate detection of a synthetic corrupt save and survival of an interrupted atomic write; they are not tests of a commercial game.
 - **Review packaged builds:** report build size, large files, duplicate files, likely development leftovers, and size changes against a baseline. It does not modify or optimize the build.
-- **Run reliability scenarios:** execute trusted game-authored commands from a JSON manifest, capture logs, and report timeouts or failed checks. The included interrupted-save example is a demonstration adapter, not a test of a commercial game.
+- **Protect selected player saves:** locate common Shadow of Mordor and GTA IV save paths, including Windows Steam installs and redirected Documents folders; copy a selected file or folder into a hashed snapshot, verify it, and restore it with a dry run and preserved pre-restore backup.
 
-The project is an early alpha. Generic save snapshots protect known-good copies; they cannot determine whether an arbitrary game's save is logically valid or repair a corrupt save without game-specific knowledge.
+This is an early alpha, not a drop-in engine plugin. Game teams must provide commands that launch their test build and validate game-specific save contents. ReleaseGuard cannot determine whether an arbitrary proprietary save is logically valid without that game-specific validator, and it does not repair save formats.
 
 ## Quick start
 
-Extract the folder and open a terminal in it. On Windows, use `py -3` if `python` is not available.
+Extract the folder and open a terminal in it. Run both included reliability scenarios:
 
-```sh
-python releaseguard.py --version
-python releaseguard.py save locate --game all
-python releaseguard.py scenario examples/save-recovery.json --output releaseguard-results
+**Windows PowerShell**
+
+```powershell
+py -3 releaseguard.py --version
+py -3 releaseguard.py scenario examples/save-corruption-detection.json --output "$HOME\ReleaseGuard-results"
+py -3 releaseguard.py scenario examples/save-recovery.json --output "$HOME\ReleaseGuard-results"
 ```
 
-For a safe five-minute first run that snapshots and verifies a save without restoring it, follow [FIRST-TEST.md](FIRST-TEST.md).
+**Linux**
 
-On Linux, use `python3` if that is the installed Python command. The automated CI suite has passed on Windows and Linux with Python 3.10 and 3.14. Hands-on testing with actual game saves has only been done on Linux/Proton so far; the Windows CI results do not replace testing on a player's own Windows setup. Core commands work offline. A scenario runs the exact local commands declared in its manifest, so only run scenarios you trust.
+```sh
+python3 releaseguard.py --version
+python3 releaseguard.py scenario examples/save-corruption-detection.json --output "$HOME/ReleaseGuard-results"
+python3 releaseguard.py scenario examples/save-recovery.json --output "$HOME/ReleaseGuard-results"
+```
+
+For a guided first run and feedback checklist, follow [FIRST-TEST.md](FIRST-TEST.md). See [RELEASE-NOTES.md](RELEASE-NOTES.md) for scope and alpha limits. Both examples use disposable synthetic files. The first intentionally detects an unreadable save after an unsafe interrupted write; the second confirms an atomic-write pattern keeps the previous committed save readable.
+
+The automated CI suite runs on Windows and Linux with Python 3.10 and 3.14. The examples do not validate a commercial game or engine. Core commands work offline. A scenario runs the exact local commands declared in its manifest, so only run scenarios you trust.
 
 ## Where files are stored
 
@@ -30,7 +40,7 @@ ReleaseGuard does not keep a central database or copy saves automatically. It re
 
 The project keeps no user data in its program folder by default. Sample fixtures used for development are excluded from the portable package. Do not include personal save files when sharing feedback.
 
-For resilience, keep the project source in a private GitHub repository with CI, but keep player saves out of source control. A robust save-backup setup should let the player choose two destinations (for example, an external drive plus a cloud-synced folder) and encrypt backups before they leave the PC. This alpha does not yet encrypt snapshots or upload them; do not place its unencrypted save snapshots in a shared or third-party cloud folder.
+The project repository and CI do not receive player save data. Keep snapshots in the destination you choose. This alpha does not encrypt snapshots or upload them; do not place unencrypted save snapshots in a shared or third-party cloud folder.
 
 Run the repeatable smoke suite from the extracted project folder with `python -m unittest discover -s tests -v`.
 
@@ -44,7 +54,7 @@ python scripts/check_project.py
 
 The command writes to `dist/`, checks the archive and wheel, installs the wheel in an isolated offline environment, and excludes local save fixtures and caches. The source ZIP includes `FIRST-TEST.md` for new testers. It also reports the next external release gate without printing any configured remote URL. `scripts/package.py` is available for CI after its test matrix has passed. GitHub Actions runs that matrix on Windows and Linux, then builds a downloadable bundle for successful pushes or manual workflow runs. It cancels stale runs on the same branch and caps job duration to avoid wasting runner time.
 
-## Protect a real save
+## Protect a player save
 
 Use the path printed by `save locate`, or provide a path you found yourself:
 
@@ -82,4 +92,4 @@ The included adapter creates a disposable known-good save, stages a partial repl
 
 ## Share feedback safely
 
-Tell us your OS, the command you ran, and its output. Do not send personal save files. Review JSON reports before sharing because they can contain local file paths.
+Use the [GitHub issue tracker](https://github.com/Shadoww23/releaseguard/issues) to report a problem. Include your OS, Python version, scenario name, and redacted error text. Do not attach save files, snapshots, unreleased builds, or unredacted reports; reports may contain local file paths.

@@ -20,6 +20,7 @@ PACKAGE_FILES = (
     "FIRST-TEST.md",
     "ITCH-PAGE-DRAFT.md",
     "README.md",
+    "RELEASE-NOTES.md",
     "TESTING.md",
     "pyproject.toml",
     "releaseguard.py",

@@ -31,7 +31,10 @@ def atomic_save(slot: Path, data: dict) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=("seed", "interrupt", "verify"))
+    parser.add_argument(
+        "action",
+        choices=("seed", "interrupt-unsafe", "interrupt-atomic", "verify"),
+    )
     parser.add_argument("slot", type=Path)
     args = parser.parse_args()
 
@@ -40,14 +43,29 @@ def main() -> int:
         print("seeded known-good save")
         return 0
 
-    if args.action == "interrupt":
-        # Simulate a crash while a new save is being written. The old slot is
-        # intentionally left alone because this example writes to a temp file
-        # and only swaps it into place after the full write is durable.
+    if args.action == "interrupt-unsafe":
+        # Model a game that truncates its only good save before writing the
+        # replacement. The harness kills this process after the partial bytes
+        # reach disk, leaving an unreadable live save behind.
+        args.slot.parent.mkdir(parents=True, exist_ok=True)
+        with args.slot.open("w", encoding="utf-8") as handle:
+            handle.write('{"format":1,"coins":999')
+            handle.flush()
+            os.fsync(handle.fileno())
+        print("partial data replaced the live save; waiting to be terminated")
+        time.sleep(300)
+        return 2  # Reaching this means the harness failed to interrupt it.
+
+    if args.action == "interrupt-atomic":
+        # Simulate a crash while writing a replacement to a sibling temporary
+        # file. The previous committed slot stays intact until os.replace.
         args.slot.parent.mkdir(parents=True, exist_ok=True)
         pending = args.slot.with_name(args.slot.name + ".pending")
-        pending.write_text('{"format":1,"coins":999', encoding="utf-8")
-        print("partial save staged; waiting to be terminated")
+        with pending.open("w", encoding="utf-8") as handle:
+            handle.write('{"format":1,"coins":999')
+            handle.flush()
+            os.fsync(handle.fileno())
+        print("partial replacement staged separately; waiting to be terminated")
         time.sleep(300)
         return 2  # Reaching this means the harness failed to interrupt it.
 

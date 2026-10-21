@@ -11,8 +11,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 NO_REMOTE_NEXT_ACTION = (
-    "Connect this checkout to a private GitHub repository to run native Windows CI "
-    "and keep an off-device source backup."
+    "Connect this checkout to GitHub to run native Windows CI and keep an off-device source backup."
 )
 
 

@@ -179,6 +179,16 @@ class ReleaseGuardCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("PASS: all scenario steps passed", result.stdout)
 
+    def test_sample_detects_corruption_after_unsafe_interrupted_write(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = self.run_cli(
+                "scenario", PROJECT / "examples/save-corruption-detection.json",
+                "--output", Path(directory) / "results",
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("PASS expected_failure_detects_unreadable_save", result.stdout)
+            self.assertIn("PASS: all scenario steps passed", result.stdout)
+
     def test_steam_save_discovery_reads_custom_library_vdf(self) -> None:
         # Uses a synthetic Steam layout so the test never reads or changes a
         # real player's saves. Forward slashes are valid in Steam's VDF on Windows.
