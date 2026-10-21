@@ -1,8 +1,15 @@
 # ReleaseGuard 0.1 Alpha: validation record
 
-Date: 2026-10-20  
+Date: 2026-10-21
 Local environment: Linux, Python 3.14.
 This is a smoke/pretest record, not an independent QA report.
+
+After adding the combined `release-check` command and allowing a build-only
+first run, all 21 local CLI and packaging tests passed on Linux/Python 3.14.
+The preflight rebuilt and verified the source ZIP and wheel, installed the
+wheel offline, and ran the combined release check with and without scenarios.
+The new command and documentation changes have not yet run through hosted
+Windows CI.
 
 The fourteen CLI smoke tests and five packaging/preflight tests (19 total) pass locally on Linux with Python 3.14. The suite includes synthetic custom Steam library discovery, mocked Windows registry lookups for Steam and redirected Documents, GTA IV discovery through a redirected Documents folder, refusal to back up symlinked content, cleanup after an interrupted snapshot copy, rejection of a Windows drive-style snapshot name, checks that the tester ZIP includes its first-test guide but excludes personal fixtures and caches, verification that the ZIP runs after extraction, detection of a deliberately corrupted synthetic save after an unsafe interrupted write, safe handling of a failed package build, and preflight next-action reporting that does not expose remote URLs. The package workflow installs the wheel offline in an isolated environment and runs its CLI.
 

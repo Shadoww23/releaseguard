@@ -23,50 +23,48 @@ py -3 --version
 python3 --version
 ```
 
-## Run the two save reliability scenarios
+## Run the first check
 
-First, run a controlled unsafe-write example. The scenario intentionally
-interrupts a synthetic save while it is overwriting the only committed file.
-Its final check is expected to detect that the save is unreadable, so the whole
-scenario should report `PASS` when ReleaseGuard catches the fault.
+Start with a packaged-build review. This needs no manifest setup. To try the
+full bundled demo as a second step, add the two sample scenario options shown
+below; those run only against synthetic disposable save files.
 
 **Windows PowerShell**
 
 ```powershell
-py -3 releaseguard.py scenario examples/save-corruption-detection.json --output "$HOME\ReleaseGuard-results"
+New-Item -ItemType Directory -Force "$HOME\ReleaseGuard-test-build" | Out-Null
+Set-Content -NoNewline "$HOME\ReleaseGuard-test-build\game.bin" "synthetic build"
+py -3 releaseguard.py release-check "$HOME\ReleaseGuard-test-build" `
+  --max-size-mib 1 --output "$HOME\ReleaseGuard-results"
 ```
 
 **Linux**
 
 ```sh
-python3 releaseguard.py scenario examples/save-corruption-detection.json --output "$HOME/ReleaseGuard-results"
+mkdir -p "$HOME/ReleaseGuard-test-build"
+printf 'synthetic build' > "$HOME/ReleaseGuard-test-build/game.bin"
+python3 releaseguard.py release-check "$HOME/ReleaseGuard-test-build" \
+  --max-size-mib 1 --output "$HOME/ReleaseGuard-results"
 ```
 
-Then run the atomic-write example. It interrupts a synthetic replacement that
-is being written to a temporary file and checks that the previous committed
-save remains readable.
+Expect `PASS: all release checks passed`. ReleaseGuard prints the path to one
+combined JSON report; detailed build and scenario logs are beside it. The
+sample includes a duration measurement for each test step, but it does not
+profile frame rate or GPU performance.
 
-**Windows PowerShell**
+To run the included save-reliability demonstrations too, repeat the command
+with these additional options:
 
-```powershell
-py -3 releaseguard.py scenario examples/save-recovery.json --output "$HOME\ReleaseGuard-results"
+```text
+--scenario examples/save-corruption-detection.json --scenario examples/save-recovery.json
 ```
-
-**Linux**
-
-```sh
-python3 releaseguard.py scenario examples/save-recovery.json --output "$HOME/ReleaseGuard-results"
-```
-
-Each invocation should end with `PASS: all scenario steps passed`. ReleaseGuard
-prints the report directory. The reports show the command results and timing.
 
 ## Report back
 
 Please share only:
 
 - Operating system and Python version
-- Whether both scenarios passed
+- Whether the build check passed; if you also ran the examples, whether both scenarios passed
 - Any error text, with usernames and private paths removed
 - Game engine and CI system, if you are evaluating it for a development team
 

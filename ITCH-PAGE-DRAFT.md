@@ -2,21 +2,22 @@
 
 ## Title
 
-ReleaseGuard: test game save recovery before release
+ReleaseGuard: one release-readiness gate for game builds
 
 ## Short description
 
-A local CLI prototype for game teams to test interrupted-save recovery and inspect packaged builds.
+A local CLI prototype combining game-authored save, stability, timing, and packaged-build checks before release.
 
 ## Page description
 
-ReleaseGuard is an early developer-tool alpha. Give it a scenario manifest and your test commands; it can interrupt a test process, collect logs, and fail the run when a save-recovery check does not meet its expected result. It works locally and in CI without an account, hosted service, telemetry, or runtime dependencies.
+ReleaseGuard is an early developer-tool alpha. Run `release-check` to review a packaged build and execute trusted game-authored scenarios under one pass/fail gate. Scenarios can interrupt a test process, collect logs, validate save recovery, and enforce step-duration budgets. It works locally and in CI without an account, hosted service, telemetry, or runtime dependencies.
 
 ### Try in this alpha
 
 - Run a controlled scenario that interrupts a synthetic unsafe save write and confirms the harness detects the unreadable save.
 - Run a second scenario that interrupts an atomic replacement and confirms the previous committed save remains readable.
 - Inspect captured step logs and a machine-readable JSON report.
+- Combine build size/content budgets and multiple scenarios in one release check with a summary JSON report.
 - Scan packaged builds for size changes, duplicate files, large files, and likely development leftovers.
 - Snapshot and verify selected player save files from supported locations.
 
@@ -27,7 +28,7 @@ ReleaseGuard is an early developer-tool alpha. Give it a scenario manifest and y
 
 ### Limits
 
-This alpha is not a Unity or Unreal plugin. Teams must provide commands for their test build and a game-specific save validator. It does not repair arbitrary corrupted saves or automatically optimize packaged assets. The bundled scenarios demonstrate the harness using a small adapter, not a commercial game.
+This alpha is not a Unity or Unreal plugin. Teams must provide commands for their test build, representative stability/timing scenarios, and a game-specific save validator. Step duration budgets are not frame-time or GPU profiling. It does not repair arbitrary corrupted saves, diagnose every crash, or automatically optimize packaged assets. The bundled scenarios demonstrate the harness using a small adapter, not a commercial game.
 
 ## Suggested itch.io setup
 

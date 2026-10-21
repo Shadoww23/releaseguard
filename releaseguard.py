@@ -1104,10 +1104,75 @@ def run_scenario(args: argparse.Namespace) -> int:
     return 1 if failed else 0
 
 
+def run_release_check(args: argparse.Namespace) -> int:
+    """Run build review and game-authored checks as one release gate."""
+    build = args.build.resolve()
+    if not build.is_dir():
+        print(f"error: build path is not a directory: {build}", file=sys.stderr)
+        return 2
+    output_root = args.output.resolve()
+    output_root.mkdir(parents=True, exist_ok=True)
+    run_stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S_%fZ")
+    run_dir = output_root / f"release-check-{run_stamp}"
+    run_dir.mkdir()
+
+    # Keep each detailed report for diagnosis, then summarize their exit status
+    # in a single report suitable for a CI gate or a tester to share safely.
+    build_report = run_dir / "build-report.json"
+    analyze_args = argparse.Namespace(
+        build=build,
+        baseline=args.baseline,
+        write_baseline=args.write_baseline,
+        report=build_report,
+        find_duplicates=args.find_duplicates,
+        max_size_mib=args.max_size_mib,
+        max_growth_mib=args.max_growth_mib,
+    )
+    checks = []
+    build_code = analyze(analyze_args)
+    checks.append({"name": "packaged-build", "passed": build_code == 0,
+                   "exit_code": build_code, "report": str(build_report)})
+
+    scenario_dir = run_dir / "scenarios"
+    for index, manifest in enumerate(args.scenarios, start=1):
+        scenario_report = scenario_dir / f"{index:02d}-{manifest.stem}.json"
+        scenario_args = argparse.Namespace(
+            manifest=manifest,
+            build=build,
+            output=scenario_dir / f"{index:02d}-{manifest.stem}-runs",
+            report=scenario_report,
+        )
+        scenario_code = run_scenario(scenario_args)
+        checks.append({"name": f"scenario:{manifest.name}", "passed": scenario_code == 0,
+                       "exit_code": scenario_code, "report": str(scenario_report)})
+
+    report = {
+        "tool": "ReleaseGuard",
+        "report_version": 1,
+        "check_type": "release-readiness",
+        "created_utc": datetime.now(timezone.utc).isoformat(),
+        "build": str(build),
+        "passed": all(item["passed"] for item in checks),
+        "checks": checks,
+        "limits": [
+            "Performance is checked only where a scenario defines duration budgets; this is not a profiler.",
+            "Save validity and recovery require game-authored validators and isolated test data.",
+            "Build findings are review hints and configured size gates, not automatic optimization.",
+        ],
+    }
+    report_path = run_dir / "release-check-report.json"
+    write_json(report_path, report)
+    print(f"Release check report: {report_path}")
+    if not args.scenarios:
+        print("Packaged-build checks complete. Add --scenario for game-specific save, stability, or timing tests.")
+    print("FAIL: release checks failed" if not report["passed"] else "PASS: all release checks passed")
+    return 1 if not report["passed"] else 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="releaseguard",
-        description="Local save protection and game release reliability tools.",
+        description="Local game release-readiness checks and save protection.",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1144,6 +1209,25 @@ def build_parser() -> argparse.ArgumentParser:
     )
     scenario.add_argument("--report", type=Path, help="write JSON report to this path")
     scenario.set_defaults(handler=run_scenario)
+
+    release_check = subparsers.add_parser(
+        "release-check", help="run build, stability, save, and timing gates together",
+    )
+    release_check.add_argument("build", type=Path, help="packaged build directory")
+    release_check.add_argument(
+        "--scenario", dest="scenarios", action="append", type=Path, default=[],
+        help="trusted game-authored scenario manifest; may be supplied more than once",
+    )
+    release_check.add_argument("--baseline", type=Path, help="previous build inventory JSON")
+    release_check.add_argument("--write-baseline", type=Path, help="write current build inventory")
+    release_check.add_argument("--max-size-mib", type=float, help="fail if packaged size exceeds this MiB")
+    release_check.add_argument("--max-growth-mib", type=float, help="fail if build growth exceeds this MiB")
+    release_check.add_argument("--find-duplicates", action="store_true", help="check exact duplicate build files")
+    release_check.add_argument(
+        "--output", type=Path, default=Path("releaseguard-results"),
+        help="parent directory for detailed reports and one combined release-check report",
+    )
+    release_check.set_defaults(handler=run_release_check)
 
     saves = subparsers.add_parser("save", help="make and verify local save snapshots")
     save_commands = saves.add_subparsers(dest="save_command", required=True)

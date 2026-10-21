@@ -1,36 +1,47 @@
-# ReleaseGuard 0.1 Alpha — Game Save Reliability Checks
+# ReleaseGuard 0.1 Alpha — Game Release Readiness Checks
 
-ReleaseGuard is a local-first CLI prototype for game teams testing save reliability and reviewing release builds. It can run a game-authored scenario, interrupt a test process, check whether a save remains valid, and return a CI-friendly pass or failure. It has no account, hosted service, telemetry, or runtime dependencies. Python 3.10 or newer is required.
+ReleaseGuard is a local-first CLI prototype for game teams to run save, crash/stability, timing, and packaged-build checks together before release. Its `release-check` command combines game-authored scenarios with build size/content review into one CI-friendly pass or failure report. It has no account, hosted service, telemetry, or runtime dependencies. Python 3.10 or newer is required.
 
 ## What works in this alpha
 
 - **Test save reliability:** execute trusted game-authored commands from a JSON manifest, interrupt a test process, capture logs, and report failed recovery checks. The bundled examples demonstrate detection of a synthetic corrupt save and survival of an interrupted atomic write; they are not tests of a commercial game.
+- **Gate repeatable stability and timing checks:** scenarios can launch a test build, capture output, enforce exit-code expectations, interrupt a process, and fail when a configured step duration is exceeded. These are test hooks and budgets, not an automatic crash diagnosis system or a performance profiler.
 - **Review packaged builds:** report build size, large files, duplicate files, likely development leftovers, and size changes against a baseline. It does not modify or optimize the build.
 - **Protect selected player saves:** locate common Shadow of Mordor and GTA IV save paths, including Windows Steam installs and redirected Documents folders; copy a selected file or folder into a hashed snapshot, verify it, and restore it with a dry run and preserved pre-restore backup.
 
-This is an early alpha, not a drop-in engine plugin. Game teams must provide commands that launch their test build and validate game-specific save contents. ReleaseGuard cannot determine whether an arbitrary proprietary save is logically valid without that game-specific validator, and it does not repair save formats.
+This is an early alpha, not a drop-in engine plugin. Game teams must provide commands that launch their test build, validate game-specific save contents, and exercise representative gameplay for stability or timing checks. ReleaseGuard cannot determine whether an arbitrary proprietary save is logically valid without that game-specific validator, diagnose every crash, or automatically optimize a game.
 
 ## Quick start
 
-Extract the folder and open a terminal in it. Run both included reliability scenarios:
+Extract the folder, open a terminal in it, and point ReleaseGuard at a packaged game build. No install command or scenario manifest is required for the first build scan:
 
 **Windows PowerShell**
 
 ```powershell
 py -3 releaseguard.py --version
-py -3 releaseguard.py scenario examples/save-corruption-detection.json --output "$HOME\ReleaseGuard-results"
-py -3 releaseguard.py scenario examples/save-recovery.json --output "$HOME\ReleaseGuard-results"
+py -3 releaseguard.py release-check "D:\Builds\MyGame" --output "$HOME\ReleaseGuard-results"
 ```
 
 **Linux**
 
 ```sh
 python3 releaseguard.py --version
-python3 releaseguard.py scenario examples/save-corruption-detection.json --output "$HOME/ReleaseGuard-results"
-python3 releaseguard.py scenario examples/save-recovery.json --output "$HOME/ReleaseGuard-results"
+python3 releaseguard.py release-check "$HOME/builds/MyGame" --output "$HOME/ReleaseGuard-results"
 ```
 
-For a guided first run and feedback checklist, follow [FIRST-TEST.md](FIRST-TEST.md). See [RELEASE-NOTES.md](RELEASE-NOTES.md) for scope and alpha limits. Both examples use disposable synthetic files. The first intentionally detects an unreadable save after an unsafe interrupted write; the second confirms an atomic-write pattern keeps the previous committed save readable.
+ReleaseGuard writes a JSON report and points out how to add game-specific checks. To include the two synthetic save demonstrations in the same release check, add the `--scenario examples/save-corruption-detection.json --scenario examples/save-recovery.json` options. They use disposable synthetic files, not your game's save format. For the guided test and feedback checklist, follow [FIRST-TEST.md](FIRST-TEST.md). See [RELEASE-NOTES.md](RELEASE-NOTES.md) for scope and alpha limits.
+
+## Run the unified release gate
+
+Run the packaged-build review and both sample reliability scenarios as one command:
+
+```sh
+python releaseguard.py release-check ./path/to/packaged-build \
+  --max-size-mib 2048 \
+  --output ./releaseguard-results
+```
+
+PowerShell uses the same options with `py -3 releaseguard.py`. The command writes a build report and `release-check-report.json`. Add scenarios with repeated `--scenario path/to/check.json` options. Add a previous inventory with `--baseline build-baseline.json --max-growth-mib 100`; establish the inventory with `--write-baseline build-baseline.json`. A scenario can set `max_duration_seconds` on representative test steps to enforce a runtime budget. That measures the step duration only; it does not profile frame time, GPU usage, or explain a regression.
 
 The automated CI suite runs on Windows and Linux with Python 3.10 and 3.14. The examples do not validate a commercial game or engine. Core commands work offline. A scenario runs the exact local commands declared in its manifest, so only run scenarios you trust.
 

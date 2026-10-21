@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import json
 from contextlib import redirect_stderr
 from io import StringIO
 from unittest.mock import patch
@@ -188,6 +189,45 @@ class ReleaseGuardCliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn("PASS expected_failure_detects_unreadable_save", result.stdout)
             self.assertIn("PASS: all scenario steps passed", result.stdout)
+
+    def test_unified_release_check_combines_build_and_scenario_results(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            build = root / "build"
+            build.mkdir()
+            (build / "game.bin").write_bytes(b"synthetic packaged build")
+            result = self.run_cli(
+                "release-check", build,
+                "--scenario", PROJECT / "examples/save-corruption-detection.json",
+                "--scenario", PROJECT / "examples/save-recovery.json",
+                "--max-size-mib", "1",
+                "--output", root / "results",
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("PASS: all release checks passed", result.stdout)
+            report_path = Path(result.stdout.split("Release check report: ", 1)[1].splitlines()[0])
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertTrue(report["passed"])
+            self.assertEqual(len(report["checks"]), 3)
+            self.assertTrue(all(check["passed"] for check in report["checks"]))
+
+    def test_release_check_runs_build_review_without_manifest_setup(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            build = root / "build"
+            build.mkdir()
+            (build / "game.bin").write_bytes(b"synthetic packaged build")
+            result = self.run_cli(
+                "release-check", build, "--max-size-mib", "1",
+                "--output", root / "results",
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("PASS: all release checks passed", result.stdout)
+            self.assertIn("Packaged-build checks complete", result.stdout)
+            report_path = Path(result.stdout.split("Release check report: ", 1)[1].splitlines()[0])
+            report = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertEqual(len(report["checks"]), 1)
+            self.assertEqual(report["checks"][0]["name"], "packaged-build")
 
     def test_steam_save_discovery_reads_custom_library_vdf(self) -> None:
         # Uses a synthetic Steam layout so the test never reads or changes a
