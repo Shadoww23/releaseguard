@@ -15,23 +15,24 @@ the ZIP, wheel, and checksums. Pushing a new `v*` tag runs
 
 ## itch.io
 
-1. Create a downloadable project named **ReleaseGuard**.
-2. Classify it as a development tool; platforms Windows and Linux.
-3. Price free during evaluation, with donations enabled.
-4. Upload `ReleaseGuard-0.1.0-alpha.zip`; mark Windows and Linux. Optionally add
-   the wheel as a second file.
-5. Paste the page copy from `ITCH-PAGE-DRAFT.md`.
-6. Upload `cover.png` (630×500), `icon.png` (512×512), and
-   `release-check.png` (1280×720).
-7. Add the proprietary-freeware/license note and the synthetic-data limits.
-8. Test the download and first-test instructions, then publish.
+Draft project: <https://brlinkin.itch.io/releaseguard> (Windows + Linux, free).
 
-Butler alternative:
+Build channels pushed:
 
 ```sh
-butler push dist/ReleaseGuard-0.1.0-alpha.zip <user>/releaseguard:windows --userversion 0.1.0-alpha
-butler push dist/ReleaseGuard-0.1.0-alpha.zip <user>/releaseguard:linux --userversion 0.1.0-alpha
+butler push dist/ReleaseGuard-0.1.0-alpha.zip Brlinkin/releaseguard:windows --userversion 0.1.0-alpha
+butler push dist/ReleaseGuard-0.1.0-alpha.zip Brlinkin/releaseguard:linux --userversion 0.1.0-alpha
 ```
+
+Remaining in the itch.io editor before publishing:
+
+1. Confirm the project type/classification is a tool, not a game.
+2. Confirm platforms Windows and Linux, price free with donations enabled.
+3. Paste the page copy from `ITCH-PAGE-DRAFT.md`, including the Brlinkin suite link.
+4. Upload `cover.png` (630×500), `icon.png` (512×512), and
+   `release-check.png` (1280×720).
+5. Add the proprietary-freeware/license note and the synthetic-data limits.
+6. Test the download and first-test instructions, then publish.
 
 ## Before each release
 
