@@ -104,3 +104,10 @@ The included adapter creates a disposable known-good save, stages a partial repl
 ## Share feedback safely
 
 Use the [GitHub issue tracker](https://github.com/Shadoww23/releaseguard/issues) to report a problem. Include your OS, Python version, scenario name, and redacted error text. Do not attach save files, snapshots, unreleased builds, or unredacted reports; reports may contain local file paths.
+
+## License and price
+
+ReleaseGuard 0.1 is free to download and evaluate under the proprietary
+freeware terms in [LICENSE](LICENSE): no redistribution, modification, or
+resale. Donations are optional. The alpha is provided as-is; see the license
+for the warranty and liability terms.

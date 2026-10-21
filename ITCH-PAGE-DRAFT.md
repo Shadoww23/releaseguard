@@ -33,8 +33,8 @@ This alpha is not a Unity or Unreal plugin. Teams must provide commands for thei
 ## Suggested itch.io setup
 
 - Project type: downloadable software/tool; use the closest available tool/development classification.
-- Price: free during the first developer evaluation. Decide on pricing only after real teams confirm the workflow solves a release problem.
-- Upload: `ReleaseGuard-0.1.0-alpha.zip`; optionally include the wheel for users comfortable with Python packaging.
+- Price: free during the first developer evaluation with optional donations. Decide on paid team licensing only after real teams confirm the workflow solves a release problem.
+- Upload: `ReleaseGuard-0.1.0-alpha.zip`; optionally include the wheel for users comfortable with Python packaging. The download is free under a proprietary freeware EULA (no redistribution or resale).
 - Platforms: mark Windows and Linux; CI passes on both.
 - Tags: command-line, developer-tools, game-development, utility (use only tags the project page actually offers and that fit).
 - Ask developers for OS, Python version, engine, CI provider, which scenario passed, and redacted error text. Tell them not to send save files, unreleased builds, or unredacted reports.
