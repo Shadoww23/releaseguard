@@ -1172,7 +1172,8 @@ def run_release_check(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="releaseguard",
-        description="Local game release-readiness checks and save protection.",
+        description="ReleaseGuard by Brlinkin: local game release-readiness checks and save protection.",
+        epilog="Part of Brlinkin: https://shadoww23.github.io/brlinkin/",
     )
     parser.add_argument("--version", action="version", version=f"%(prog)s {VERSION}")
     subparsers = parser.add_subparsers(dest="command", required=True)
