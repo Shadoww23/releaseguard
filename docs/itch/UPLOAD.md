@@ -15,7 +15,7 @@ the ZIP, wheel, and checksums. Pushing a new `v*` tag runs
 
 ## itch.io
 
-Draft project: <https://brlinkin.itch.io/releaseguard> (Windows + Linux, free).
+Live: <https://brlinkin.itch.io/releaseguard> (Windows + Linux, free with donations).
 
 Build channels pushed:
 
@@ -24,15 +24,9 @@ butler push dist/ReleaseGuard-0.1.0-alpha.zip Brlinkin/releaseguard:windows --us
 butler push dist/ReleaseGuard-0.1.0-alpha.zip Brlinkin/releaseguard:linux --userversion 0.1.0-alpha
 ```
 
-Remaining in the itch.io editor before publishing:
-
-1. Confirm the project type/classification is a tool, not a game.
-2. Confirm platforms Windows and Linux, price free with donations enabled.
-3. Paste the page copy from `ITCH-PAGE-DRAFT.md`, including the Brlinkin suite link.
-4. Upload `cover.png` (630×500), `icon.png` (512×512), and
-   `release-check.png` (1280×720).
-5. Add the proprietary-freeware/license note and the synthetic-data limits.
-6. Test the download and first-test instructions, then publish.
+Published with classification Tool, page copy, the Brlinkin suite link,
+cover/icon/screenshot, the proprietary-freeware note, and the synthetic-data
+limits.
 
 ## Before each release
 
