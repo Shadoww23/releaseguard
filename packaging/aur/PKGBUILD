@@ -1,0 +1,44 @@
+# Maintainer: Shadoww23 <shadoww23@users.noreply.github.com>
+pkgname=releaseguard
+pkgver=0.1.0_alpha
+pkgrel=1
+pkgdesc="Local game release-readiness checks and save protection"
+arch=('any')
+url="https://github.com/Shadoww23/releaseguard"
+license=('LicenseRef-Proprietary')
+depends=('python')
+makedepends=('unzip')
+_ver=0.1.0-alpha
+source=("$pkgname-$pkgver.zip::$url/releases/download/v$_ver/ReleaseGuard-$_ver.zip")
+sha256sums=('6deb7c659c4021fa12e26d5ae6a9042d5f2fe9abe70fa2df4c93458ab7158805')
+noextract=("$pkgname-$pkgver.zip")
+
+prepare() {
+  mkdir -p "$pkgname-$pkgver"
+  unzip -q "$srcdir/$pkgname-$pkgver.zip" -d "$pkgname-$pkgver"
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  python3 -m unittest discover -s tests -q
+}
+
+package() {
+  install -Dm755 "$srcdir/$pkgname-$pkgver/releaseguard.py" \
+    "$pkgdir/usr/bin/releaseguard"
+
+  install -d "$pkgdir/usr/share/releaseguard/examples"
+  install -m644 "$srcdir/$pkgname-$pkgver/examples/"*.json \
+    "$pkgdir/usr/share/releaseguard/examples/"
+  install -m755 "$srcdir/$pkgname-$pkgver/examples/save_adapter.py" \
+    "$pkgdir/usr/share/releaseguard/examples/"
+
+  install -Dm644 "$srcdir/$pkgname-$pkgver/LICENSE" \
+    "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 "$srcdir/$pkgname-$pkgver/README.md" \
+    "$pkgdir/usr/share/doc/$pkgname/README.md"
+  install -Dm644 "$srcdir/$pkgname-$pkgver/TESTING.md" \
+    "$pkgdir/usr/share/doc/$pkgname/TESTING.md"
+  install -Dm644 "$srcdir/$pkgname-$pkgver/FIRST-TEST.md" \
+    "$pkgdir/usr/share/doc/$pkgname/FIRST-TEST.md"
+}

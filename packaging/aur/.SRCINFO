@@ -1,0 +1,14 @@
+pkgbase = releaseguard
+	pkgdesc = Local game release-readiness checks and save protection
+	pkgver = 0.1.0_alpha
+	pkgrel = 1
+	url = https://github.com/Shadoww23/releaseguard
+	arch = any
+	license = LicenseRef-Proprietary
+	makedepends = unzip
+	depends = python
+	noextract = releaseguard-0.1.0_alpha.zip
+	source = releaseguard-0.1.0_alpha.zip::https://github.com/Shadoww23/releaseguard/releases/download/v0.1.0-alpha/ReleaseGuard-0.1.0-alpha.zip
+	sha256sums = 6deb7c659c4021fa12e26d5ae6a9042d5f2fe9abe70fa2df4c93458ab7158805
+
+pkgname = releaseguard

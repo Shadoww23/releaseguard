@@ -1,0 +1,77 @@
+name: Alpha test report
+description: Report what happened when you ran ReleaseGuard on a build or in CI.
+title: "[Test] "
+labels: ["test-report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing the alpha. Remove customer code, game assets, and credentials before pasting reports.
+  - type: dropdown
+    id: area
+    attributes:
+      label: What did you test?
+      options:
+        - analyze on a packaged build
+        - Bundled scenario (save corruption)
+        - release-check with my own manifest
+        - Save snapshot / verify
+        - CI integration
+        - Install / uninstall
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      render: shell
+      placeholder: "python3 releaseguard.py analyze ./build --find-duplicates"
+    validations:
+      required: true
+  - type: dropdown
+    id: source
+    attributes:
+      label: How did you find this?
+      options:
+        - itch.io
+        - GitHub
+        - Reddit
+        - GamingOnLinux / Boiling Steam / Phoronix
+        - Hacker News / Lobsters
+        - Discord
+        - A friend or a package manager
+        - Other
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, and how you installed it.
+      placeholder: "Windows 11, Python 3.13, ZIP from itch"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What actually happened?
+      description: Exit code, failing check, or the JSON summary if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output / logs
+      render: shell
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Sharing
+      options:
+        - label: This report may be quoted publicly without my username.
+          required: false
