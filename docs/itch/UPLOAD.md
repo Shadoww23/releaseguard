@@ -22,7 +22,10 @@ Live: <https://brlinkin.itch.io/releaseguard> (Windows + Linux, free with donati
 Build channels pushed:
 
 ```sh
-butler push dist/ReleaseGuard-0.1.0-alpha.zip Brlinkin/releaseguard:windows --userversion 0.1.0-alpha
+# Windows: push the extracted win64 package so ReleaseGuard.exe is at the root.
+butler push path/to/ReleaseGuard-0.1.0-alpha-win64 Brlinkin/releaseguard:windows --userversion 0.1.0-alpha
+
+# Linux: the source archive stays the Linux channel.
 butler push dist/ReleaseGuard-0.1.0-alpha.zip Brlinkin/releaseguard:linux --userversion 0.1.0-alpha
 ```
 
