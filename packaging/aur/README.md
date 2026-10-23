@@ -16,7 +16,7 @@ releaseguard --version
 
 `makepkg` runs the unit tests in `check()`.
 
-## Verified build (2026-10-21)
+## Verified build (2026-10-23)
 
 Built and installed in a clean `archlinux:latest` container:
 
