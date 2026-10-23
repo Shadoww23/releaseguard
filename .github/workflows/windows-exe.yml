@@ -1,0 +1,42 @@
+name: windows-exe
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to attach the ZIP to (optional)"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build and smoke-test the Windows executable
+        shell: pwsh
+        run: .\packaging\windows\build.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ReleaseGuard-win64
+          path: |
+            packaging/windows/dist/ReleaseGuard-*-win64.zip
+            packaging/windows/dist/SHA256SUMS.txt
+      - name: Attach to an existing release
+        if: ${{ inputs.tag != '' }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          gh release upload $env:TAG `
+            packaging/windows/dist/ReleaseGuard-*-win64.zip `
+            packaging/windows/dist/SHA256SUMS.txt `
+            --clobber
