@@ -3,8 +3,10 @@
 ## Files
 
 - `dist/ReleaseGuard-0.1.0-alpha.zip` — itch.io upload and portable source.
+- `dist/ReleaseGuard-0.1.0-alpha-win64.zip` — self-contained Windows app (no Python).
 - `dist/releaseguard_local-0.1.0-py3-none-any.whl` — optional wheel.
 - `dist/ReleaseGuard-0.1.0-alpha-SHA256SUMS.txt` — publish beside downloads.
+- `dist/ReleaseGuard-0.1.0-alpha-win64-SHA256SUMS.txt` — Windows app checksums.
 - `docs/itch/cover.png`, `icon.png`, `release-check.png` — storefront assets.
 
 ## GitHub
