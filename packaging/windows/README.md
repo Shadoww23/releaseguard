@@ -31,4 +31,4 @@ Build on Windows with Python 3.12+:
 ```
 
 Output: `packaging/windows/dist/ReleaseGuard-<version>-win64.zip` and
-`SHA256SUMS.txt`. The `windows-exe` workflow builds and smoke-tests the same artifact.
+`ReleaseGuard-<version>-win64-SHA256SUMS.txt`. The `windows-exe` workflow builds and smoke-tests the same artifact.

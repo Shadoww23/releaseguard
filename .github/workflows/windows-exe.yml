@@ -28,7 +28,7 @@ jobs:
           name: ReleaseGuard-win64
           path: |
             packaging/windows/dist/ReleaseGuard-*-win64.zip
-            packaging/windows/dist/SHA256SUMS.txt
+            packaging/windows/dist/*-SHA256SUMS.txt
       - name: Attach to an existing release
         if: ${{ inputs.tag != '' }}
         shell: pwsh
@@ -38,5 +38,5 @@ jobs:
         run: |
           gh release upload $env:TAG `
             packaging/windows/dist/ReleaseGuard-*-win64.zip `
-            packaging/windows/dist/SHA256SUMS.txt `
+            packaging/windows/dist/*-SHA256SUMS.txt `
             --clobber

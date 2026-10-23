@@ -12,7 +12,7 @@ $packageVersion = if ($Label) { "$version-$Label" } else { $version }
 $stageName = "ReleaseGuard-$packageVersion-win64"
 $stage = Join-Path $dist $stageName
 $zip = Join-Path $dist "$stageName.zip"
-$sums = Join-Path $dist "SHA256SUMS.txt"
+$sums = Join-Path $dist "$stageName-SHA256SUMS.txt"
 
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
 Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $stage, $zip, $sums
