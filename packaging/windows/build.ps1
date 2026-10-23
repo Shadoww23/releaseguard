@@ -1,3 +1,5 @@
+param([string]$Label = "alpha")
+
 $ErrorActionPreference = "Stop"
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
@@ -6,7 +8,8 @@ Set-Location $root
 $dist = Join-Path $root "packaging\windows\dist"
 $work = Join-Path $root "packaging\windows\build"
 $version = (Select-String -Path (Join-Path $root "releaseguard.py") -Pattern '^VERSION = "([^"]+)"' -List).Matches[0].Groups[1].Value
-$stageName = "ReleaseGuard-$version-win64"
+$packageVersion = if ($Label) { "$version-$Label" } else { $version }
+$stageName = "ReleaseGuard-$packageVersion-win64"
 $stage = Join-Path $dist $stageName
 $zip = Join-Path $dist "$stageName.zip"
 $sums = Join-Path $dist "SHA256SUMS.txt"
