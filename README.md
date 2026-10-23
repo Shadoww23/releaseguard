@@ -33,6 +33,13 @@ For the full CLI, open PowerShell in the extracted folder:
 .\ReleaseGuard.exe release-check "D:\Builds\MyGame" --output "$HOME\ReleaseGuard-results"
 ```
 
+If you use Scoop, the published bucket installs the same portable app:
+
+```powershell
+scoop bucket add brlinkin https://github.com/Shadoww23/scoop-brlinkin
+scoop install brlinkin/releaseguard
+```
+
 The Python archive still works for development and CI:
 
 ```powershell
