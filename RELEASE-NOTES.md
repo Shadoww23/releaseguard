@@ -19,11 +19,13 @@ dependencies.
   steps can enforce duration budgets; this is not a frame-time or GPU profiler.
 - `releaseguard save` can locate a small set of common game saves and create,
   verify, or restore local snapshots. This is an experimental player utility.
+- A self-contained Windows executable offers the same commands and a guided
+  first run. It is unsigned and not a GUI; SmartScreen may warn.
 
 ## Requirements
 
-- Windows or Linux
-- Python 3.10 or newer
+- Windows 10/11 x64 with no Python needed, or Linux with Python 3.10 or newer
+- The portable win64 ZIP includes a self-contained `ReleaseGuard.exe`; the source archive still uses Python
 
 The automated test matrix passes on Windows and Linux with Python 3.10 and
 3.14. See `FIRST-TEST.md` for a short synthetic-data test.

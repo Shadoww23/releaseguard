@@ -1,6 +1,6 @@
 # ReleaseGuard 0.1 Alpha — Game Release Readiness Checks
 
-ReleaseGuard is a local-first CLI prototype for game teams to run save, crash/stability, timing, and packaged-build checks together before release. Its `release-check` command combines game-authored scenarios with build size/content review into one CI-friendly pass or failure report. It has no account, hosted service, telemetry, or runtime dependencies. Python 3.10 or newer is required.
+ReleaseGuard is a local-first CLI prototype for game teams to run save, crash/stability, timing, and packaged-build checks together before release. Its `release-check` command combines game-authored scenarios with build size/content review into one CI-friendly pass or failure report. It has no account, hosted service, telemetry, or runtime dependencies. The Windows build is a self-contained executable; the Linux archive needs Python 3.10 or newer.
 
 ReleaseGuard is part of [Brlinkin](https://shadoww23.github.io/brlinkin/), a small suite of local-first tools for Linux gaming and game releases.
 
@@ -24,9 +24,16 @@ This is an early alpha, not a drop-in engine plugin. Game teams must provide com
 
 ## Quick start
 
-Extract the folder, open a terminal in it, and point ReleaseGuard at a packaged game build. No install command or scenario manifest is required for the first build scan:
+Download the win64 zip [from the alpha release](https://github.com/Shadoww23/releaseguard/releases/tag/v0.1.0-alpha), extract it, and double-click `ReleaseGuard.exe`. Paste the path to a packaged game build; the guided check writes reports to `%USERPROFILE%\ReleaseGuard-results`. The alpha executable is unsigned, so Windows SmartScreen may ask you to choose **More info** then **Run anyway** after you verify the SHA-256 from the same release.
 
-**Windows PowerShell**
+For the full CLI, open PowerShell in the extracted folder:
+
+```powershell
+.\ReleaseGuard.exe --version
+.\ReleaseGuard.exe release-check "D:\Builds\MyGame" --output "$HOME\ReleaseGuard-results"
+```
+
+The Python archive still works for development and CI:
 
 ```powershell
 py -3 releaseguard.py --version
