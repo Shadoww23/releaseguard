@@ -29,6 +29,10 @@ butler push path/to/ReleaseGuard-0.1.0-alpha-win64 Brlinkin/releaseguard:windows
 butler push dist/ReleaseGuard-0.1.0-alpha.zip Brlinkin/releaseguard:linux --userversion 0.1.0-alpha
 ```
 
+The Windows package includes `START-HERE.txt` because the itch page copy still
+describes the Python source build. Update the page description manually when
+signed in; butler cannot edit store page text.
+
 Published with classification Tool, page copy, the Brlinkin suite link,
 cover/icon/screenshot, the proprietary-freeware note, and the synthetic-data
 limits.
