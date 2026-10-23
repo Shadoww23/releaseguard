@@ -39,3 +39,6 @@ The build signs the executable when `WINDOWS_SIGN_PFX_BASE64` (a base64
 PKCS#12 file) and `WINDOWS_SIGN_PFX_PASSWORD` are present, then verifies it
 with `signtool`. Add both as repository secrets to sign release builds. Without
 them the alpha stays unsigned and SmartScreen may warn.
+
+After a new build, update the SHA-256 in the Flow manifest, the Scoop manifest,
+and the Winget installer manifest. Signing changes the executable hash.
