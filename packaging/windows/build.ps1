@@ -35,6 +35,24 @@ python -m PyInstaller `
 $exe = Join-Path $dist "ReleaseGuard.exe"
 if (-not (Test-Path $exe)) { throw "PyInstaller did not produce ReleaseGuard.exe" }
 
+if ($env:WINDOWS_SIGN_PFX_BASE64) {
+    if (-not $env:WINDOWS_SIGN_PFX_PASSWORD) {
+        throw "WINDOWS_SIGN_PFX_PASSWORD is required when signing"
+    }
+    $pfx = Join-Path $env:RUNNER_TEMP "releaseguard-signing.pfx"
+    [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WINDOWS_SIGN_PFX_BASE64))
+    $signtool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+        Sort-Object FullName -Descending |
+        Select-Object -First 1
+    if (-not $signtool) { throw "signtool.exe was not found" }
+    & $signtool.FullName sign /fd SHA256 /f $pfx /p $env:WINDOWS_SIGN_PFX_PASSWORD `
+        /tr http://timestamp.digicert.com /td SHA256 $exe
+    if ($LASTEXITCODE -ne 0) { throw "Signing failed" }
+    & $signtool.FullName verify /pa $exe
+    if ($LASTEXITCODE -ne 0) { throw "Signature verification failed" }
+    Remove-Item $pfx -Force
+}
+
 & $exe --version
 if ($LASTEXITCODE -ne 0) { throw "ReleaseGuard.exe --version failed" }
 

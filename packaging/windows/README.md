@@ -32,3 +32,10 @@ Build on Windows with Python 3.12+:
 
 Output: `packaging/windows/dist/ReleaseGuard-<version>-win64.zip` and
 `ReleaseGuard-<version>-win64-SHA256SUMS.txt`. The `windows-exe` workflow builds and smoke-tests the same artifact.
+
+## Signing
+
+The build signs the executable when `WINDOWS_SIGN_PFX_BASE64` (a base64
+PKCS#12 file) and `WINDOWS_SIGN_PFX_PASSWORD` are present, then verifies it
+with `signtool`. Add both as repository secrets to sign release builds. Without
+them the alpha stays unsigned and SmartScreen may warn.
